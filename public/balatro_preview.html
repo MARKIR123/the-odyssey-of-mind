@@ -1,0 +1,2371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balatro-Style SSR Philosophy & Echo Cards - Interactive Tuning Deck</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Noto+Serif+SC:wght@400;600;700;900&family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-serif: 'Cinzel', 'Noto Serif SC', serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 30%, #16151f 0%, #0c0b12 55%, #050408 100%);
+      font-family: var(--font-serif);
+      color: #f5f4f8;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Subtle Balatro Table Felt Pattern */
+    .felt-pattern {
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(212, 163, 89, 0.025) 0%, transparent 100%);
+      background-size: 28px 28px, 100% 100%;
+    }
+
+    /* 3D Stage Container */
+    .card-stage {
+      width: 440px;
+      height: 620px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: var(--perspective, 1200px);
+      transform-style: preserve-3d;
+    }
+
+    /* Outer Wrapper for Idle Floating */
+    .idle-animation {
+      animation: idle-float 4.8s ease-in-out infinite;
+    }
+
+    @keyframes idle-float {
+      0%, 100% {
+        transform: translateY(0px) rotateZ(0deg);
+      }
+      50% {
+        transform: translateY(calc(-1 * var(--idle-amp, 6px))) rotateZ(0.5deg);
+      }
+    }
+
+    .card-idle-wrapper {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    /* Main Balatro SSR Card */
+    .balatro-card {
+      width: 380px;
+      height: 560px;
+      border-radius: 26px;
+      position: relative;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      will-change: transform;
+      cursor: grab;
+      background: #0d0c14;
+    }
+
+    .balatro-card:active {
+      cursor: grabbing;
+    }
+
+    /* Double Face Setup */
+    .card-face {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 26px;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      background: #0d0c14;
+    }
+
+    /* 3D Physical Extruded Slab Edge Slices */
+    .card-slab-slice {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      border-radius: 26px;
+      pointer-events: none !important;
+      user-select: none !important;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, #282438 0%, #12101b 50%, #1d192a 100%);
+      border: 1.5px solid rgba(212, 163, 89, 0.62);
+      box-shadow: 
+        0 0 2px rgba(0, 0, 0, 0.95),
+        inset 0 0 3px rgba(212, 163, 89, 0.35);
+    }
+
+    .card-face-front {
+      transform: rotateY(0deg) translateZ(var(--half-thickness, 7px));
+      z-index: 2;
+      pointer-events: auto;
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.25s ease;
+      box-shadow: 
+        0 0 0 1.5px rgba(212, 163, 89, 0.7),
+        inset 0 2px 3.5px rgba(255, 255, 255, 0.55),
+        inset 0 -2.5px 5px rgba(0, 0, 0, 0.9);
+    }
+
+    .card-face-back {
+      transform: rotateY(180deg) translateZ(var(--half-thickness, 7px));
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+      box-shadow: 
+        0 0 0 1.5px rgba(212, 163, 89, 0.7),
+        inset 0 2px 3.5px rgba(255, 255, 255, 0.45),
+        inset 0 -2.5px 5px rgba(0, 0, 0, 0.9);
+    }
+
+    .is-flipped .card-face-front {
+      z-index: 1 !important;
+      pointer-events: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+      transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+    }
+
+    .is-flipped .card-face-back {
+      z-index: 3 !important;
+      pointer-events: auto !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      transition: opacity 0.25s ease;
+    }
+
+    img {
+      -webkit-user-drag: none;
+      user-drag: none;
+      user-select: none;
+      -webkit-user-select: none;
+      pointer-events: none;
+    }
+
+    /* Card Edge Bevel & Drop Shadow */
+    .card-shadow-container {
+      box-shadow: 
+        0 25px 60px -15px rgba(0, 0, 0, 0.85),
+        0 0 0 1px rgba(255, 255, 255, 0.18),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.4),
+        inset 0 -1px 2px rgba(0, 0, 0, 0.8);
+      transition: box-shadow 0.25s ease;
+    }
+
+    .card-shadow-elevated {
+      box-shadow: 
+        0 45px 85px -15px rgba(0, 0, 0, 0.95),
+        0 20px 40px -10px rgba(212, 163, 89, 0.25),
+        0 0 0 1.5px rgba(255, 255, 255, 0.32),
+        inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    }
+
+    /* Clean Specular Glass Sheen (No rainbow, pure luxury optical shine) */
+    .specular-sheen {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 26px;
+      mix-blend-mode: overlay;
+      background: radial-gradient(
+        circle 360px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+        rgba(255, 255, 255, 0.42) 0%,
+        rgba(255, 255, 255, 0.15) 30%,
+        transparent 65%
+      );
+      opacity: var(--sheen-opacity, 0.4);
+      transition: opacity 0.3s ease;
+    }
+
+    /* Frosted Glass Overlay Panels */
+    .glass-frosted-header {
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(14, 12, 18, 0.58);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    }
+
+    .glass-frosted-quote {
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      background: rgba(14, 12, 18, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+
+    .glass-frosted-dossier {
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      background: rgba(12, 11, 15, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .glass-chip {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    /* Custom Scrollbar for Drawer */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.2);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(212, 163, 89, 0.3);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(212, 163, 89, 0.6);
+    }
+
+    /* Slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: rgba(255, 255, 255, 0.12);
+      height: 5px;
+      border-radius: 3px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #e2b36b;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(226, 179, 107, 0.6);
+      transition: transform 0.1s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+    }
+
+    /* =================================================== */
+    /* 3D Hot-stamping Gold Foil (烫金纹理系统)             */
+    /* =================================================== */
+    .card-foil-overlay {
+      position: absolute !important;
+      inset: 0 !important;
+      border-radius: 26px;
+      pointer-events: none !important;
+      user-select: none !important;
+      overflow: hidden;
+      z-index: 12;
+      opacity: var(--foil-intensity, 0.75);
+      transition: opacity 0.25s ease;
+    }
+
+    .foil-border-frame {
+      position: absolute;
+      inset: 7px;
+      border-radius: 20px;
+      border: 1.5px solid transparent;
+      border-image: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%) 1;
+      pointer-events: none;
+      box-shadow: inset 0 0 10px rgba(212, 163, 89, 0.25), 0 0 6px rgba(212, 163, 89, 0.3);
+    }
+
+    .foil-inner-rule {
+      position: absolute;
+      inset: 12px;
+      border-radius: 15px;
+      border: 1px dashed rgba(252, 246, 186, 0.45);
+      pointer-events: none;
+    }
+
+    .foil-corner-svg {
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      pointer-events: none;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 4px rgba(212, 163, 89, 0.5));
+    }
+    .foil-corner-tl { top: 5px; left: 5px; }
+    .foil-corner-tr { top: 5px; right: 5px; transform: scaleX(-1); }
+    .foil-corner-bl { bottom: 5px; left: 5px; transform: scaleY(-1); }
+    .foil-corner-br { bottom: 5px; right: 5px; transform: scale(-1, -1); }
+
+    .foil-pattern-surface {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+
+    .foil-pattern-matte-leaf {
+      background-image: radial-gradient(circle at 50% 50%, rgba(255, 230, 150, 0.45) 1px, transparent 1.5px),
+                        radial-gradient(circle at 25% 35%, rgba(212, 163, 89, 0.5) 1px, transparent 1.5px),
+                        radial-gradient(circle at 75% 65%, rgba(252, 246, 186, 0.4) 1.5px, transparent 2px);
+      background-size: 20px 20px, 28px 28px, 36px 36px;
+    }
+
+    /* Dynamic Gold Foil Specular Glint */
+    .foil-dynamic-glint {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border-radius: 26px;
+      background: radial-gradient(
+        circle 350px at var(--foil-x, 50%) var(--foil-y, 50%),
+        rgba(255, 248, 210, 0.95) 0%,
+        rgba(240, 195, 80, 0.45) 30%,
+        transparent 65%
+      );
+      mix-blend-mode: color-dodge;
+      opacity: var(--foil-glint-opacity, 0.7);
+      transition: opacity 0.25s ease;
+    }
+
+    /* =================================================== */
+    /* Holographic Laser Typography (字体镭射特效)         */
+    /* =================================================== */
+    .laser-target-title,
+    .laser-target-badge,
+    .laser-target-sub,
+    .laser-target-quote {
+      transition: filter 0.25s ease, background 0.25s ease, color 0.25s ease;
+      display: inline-block;
+    }
+
+    /* 1. Prismatic Rainbow (全息棱镜彩虹) */
+    .laser-active.laser-style-prismatic-rainbow {
+      background-image: linear-gradient(
+        var(--laser-angle, 115deg),
+        #ff0055 0%,
+        #ff6600 16%,
+        #ffd000 32%,
+        #00e676 50%,
+        #00b0ff 68%,
+        #7c4dff 84%,
+        #ff0055 100%
+      ) !important;
+      background-size: 300% 300% !important;
+      background-position: var(--laser-pos-x, 50%) var(--laser-pos-y, 50%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 calc(var(--laser-intensity, 0.85) * 5px) rgba(255, 255, 255, 0.65))
+              drop-shadow(0 2px 8px rgba(0, 0, 0, 0.9)) !important;
+    }
+
+    /* 2. Cosmic Opaline (星云珠光极光) */
+    .laser-active.laser-style-cosmic-opaline {
+      background-image: linear-gradient(
+        var(--laser-angle, 115deg),
+        #d8b4fe 0%,
+        #67e8f9 20%,
+        #fef08a 42%,
+        #86efac 64%,
+        #f472b6 85%,
+        #d8b4fe 100%
+      ) !important;
+      background-size: 280% 280% !important;
+      background-position: var(--laser-pos-x, 50%) var(--laser-pos-y, 50%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 calc(var(--laser-intensity, 0.8) * 4px) rgba(103, 232, 249, 0.75))
+              drop-shadow(0 2px 8px rgba(0, 0, 0, 0.9)) !important;
+    }
+
+    /* 3. Liquid Chrome Gold (液态融金高光) */
+    .laser-active.laser-style-liquid-chrome-gold {
+      background-image: linear-gradient(
+        var(--laser-angle, 115deg),
+        #bf953f 0%,
+        #fcf6ba 18%,
+        #ffffff 32%,
+        #b38728 48%,
+        #ffffff 65%,
+        #fbf5b7 82%,
+        #aa771c 100%
+      ) !important;
+      background-size: 260% 260% !important;
+      background-position: var(--laser-pos-x, 50%) var(--laser-pos-y, 50%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 calc(var(--laser-intensity, 0.9) * 5px) rgba(255, 235, 140, 0.85))
+              drop-shadow(0 2px 8px rgba(0, 0, 0, 0.95)) !important;
+    }
+
+    /* 4. Cyber Aether Neon (以太冷光微芒) */
+    .laser-active.laser-style-cyber-aether-neon {
+      background-image: linear-gradient(
+        var(--laser-angle, 115deg),
+        #00f5d4 0%,
+        #7b2cbf 28%,
+        #ff007f 54%,
+        #3a86ff 78%,
+        #00f5d4 100%
+      ) !important;
+      background-size: 320% 320% !important;
+      background-position: var(--laser-pos-x, 50%) var(--laser-pos-y, 50%) !important;
+      -webkit-background-clip: text !important;
+      background-clip: text !important;
+      -webkit-text-fill-color: transparent !important;
+      filter: drop-shadow(0 0 calc(var(--laser-intensity, 0.8) * 5px) rgba(0, 245, 212, 0.8))
+              drop-shadow(0 2px 8px rgba(0, 0, 0, 0.9)) !important;
+    }
+
+    /* UI Option Buttons & Preset Cards */
+    .fx-pill-btn {
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+      cursor: pointer;
+    }
+    .fx-pill-btn.active {
+      border-color: #f59e0b !important;
+      background-color: rgba(245, 158, 11, 0.28) !important;
+      color: #fef3c7 !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.35) !important;
+    }
+
+    .preset-card {
+      transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+      cursor: pointer;
+    }
+    .preset-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(245, 158, 11, 0.5);
+      background-color: rgba(255, 255, 255, 0.08);
+    }
+    .preset-card:active {
+      transform: translateY(0);
+    }
+    .preset-card.active {
+      border-color: #f59e0b !important;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(30, 25, 40, 0.9) 100%) !important;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.3) !important;
+    }
+  </style>
+</head>
+
+<body class="felt-pattern flex flex-col items-center justify-between min-h-screen p-4 sm:p-6 select-none relative">
+
+  <!-- Hidden Reusable SVG Definitions for Gold Foil Systems -->
+  <svg width="0" height="0" class="absolute pointer-events-none opacity-0" aria-hidden="true">
+    <defs>
+      <!-- Metallic Gold Foil Gradient -->
+      <linearGradient id="goldFoilGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#bf953f" />
+        <stop offset="25%" stop-color="#fcf6ba" />
+        <stop offset="48%" stop-color="#b38728" />
+        <stop offset="70%" stop-color="#fbf5b7" />
+        <stop offset="90%" stop-color="#aa771c" />
+        <stop offset="100%" stop-color="#d4af37" />
+      </linearGradient>
+
+      <!-- 1. Byzantine / Greek Classical Filigree Corner -->
+      <symbol id="byzantine-corner-sym" viewBox="0 0 100 100">
+        <path d="M 6,6 L 86,6 L 86,13 L 13,13 L 13,86 L 6,86 Z" fill="url(#goldFoilGrad)" />
+        <path d="M 20,20 L 64,20 L 64,25 L 25,25 L 25,64 L 20,64 Z" fill="url(#goldFoilGrad)" opacity="0.9" />
+        <path d="M 32,32 Q 54,32 54,54 Q 32,54 32,32 Z" fill="none" stroke="url(#goldFoilGrad)" stroke-width="2" />
+        <circle cx="54" cy="54" r="4.5" fill="url(#goldFoilGrad)" />
+        <path d="M 13,13 L 34,34" stroke="url(#goldFoilGrad)" stroke-width="1.8" />
+        <circle cx="86" cy="13" r="2.5" fill="#fcf6ba" />
+        <circle cx="13" cy="86" r="2.5" fill="#fcf6ba" />
+      </symbol>
+
+      <!-- 2. Astral Celestial 8-Point Star Corner -->
+      <symbol id="astral-star-sym" viewBox="0 0 100 100">
+        <circle cx="48" cy="48" r="38" fill="none" stroke="url(#goldFoilGrad)" stroke-width="1.2" stroke-dasharray="3, 3" />
+        <circle cx="48" cy="48" r="22" fill="none" stroke="url(#goldFoilGrad)" stroke-width="1" />
+        <path d="M48,8 L54,42 L88,48 L54,54 L48,88 L42,54 L8,48 L42,42 Z" fill="url(#goldFoilGrad)" />
+        <circle cx="48" cy="48" r="4" fill="#ffffff" />
+      </symbol>
+
+      <!-- 3. Damascus Kintsugi Flowing Vein Corner -->
+      <symbol id="damascus-corner-sym" viewBox="0 0 100 100">
+        <path d="M 6,36 Q 22,22 36,6 M 6,68 Q 36,36 68,6 M 12,90 Q 52,52 90,12 M 36,94 Q 68,68 94,36" fill="none" stroke="url(#goldFoilGrad)" stroke-width="2" stroke-linecap="round" />
+        <circle cx="36" cy="6" r="2.5" fill="#fcf6ba" />
+        <circle cx="68" cy="6" r="2.5" fill="#fcf6ba" />
+        <circle cx="6" cy="36" r="2.5" fill="#fcf6ba" />
+        <circle cx="6" cy="68" r="2.5" fill="#fcf6ba" />
+      </symbol>
+    </defs>
+  </svg>
+
+  <!-- ========================================== -->
+  <!-- 1. TOP HEADER & NAVIGATION BAR             -->
+  <!-- ========================================== -->
+  <header class="w-full max-w-5xl flex flex-wrap items-center justify-between gap-4 py-2 z-20">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-black shadow-lg">
+        ✦
+      </div>
+      <div>
+        <h1 class="text-lg sm:text-xl font-black tracking-wide text-amber-100 flex items-center gap-2">
+          BALATRO SSR 先哲典藏卡
+          <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded bg-amber-500/20 border border-amber-500/30 text-amber-300">
+            v2.0 全幅磨砂版
+          </span>
+        </h1>
+        <p class="text-xs text-stone-400 font-mono">
+          全背景图像覆盖 · 磨砂玻璃容器 · 点击翻转 · 惯性拖拽回弹
+        </p>
+      </div>
+    </div>
+
+    <!-- Right Controls: Toggle Settings Drawer & Quick Flip Button -->
+    <div class="flex items-center gap-2.5">
+      <button 
+        id="btn-quick-flip"
+        onclick="triggerFlip()" 
+        class="px-3.5 py-1.5 rounded-xl bg-stone-900/80 hover:bg-stone-800 border border-white/15 text-stone-200 hover:text-white text-xs font-mono transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+      >
+        <span>🔄 翻转卡片 (Space)</span>
+      </button>
+      <button 
+        id="btn-toggle-drawer"
+        onclick="toggleSettingsDrawer()" 
+        class="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/40 text-amber-200 text-xs font-mono transition-all flex items-center gap-1.5 shadow-lg active:scale-95"
+      >
+        <span>⚙️ 调校参数滑块</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- 2. CENTER STAGE: THE BALATRO SSR CARD      -->
+  <!-- ========================================== -->
+  <main class="flex-1 w-full flex flex-col items-center justify-center my-4 relative z-10">
+    <div id="card-stage" class="card-stage">
+      
+      <!-- Idle Floating Wrapper -->
+      <div id="card-idle-wrapper" class="card-idle-wrapper">
+        
+        <!-- Interactive Balatro SSR Card -->
+        <div id="balatro-card" class="balatro-card card-shadow-container">
+          
+          <!-- 3D Physical Extruded Slab Edge Slices -->
+          <div id="card-slab-slices" class="pointer-events-none"></div>
+
+          <!-- ======================================== -->
+          <!-- A. FRONT FACE: SSR FULL-BLEED ARTWORK   -->
+          <!-- ======================================== -->
+          <div class="card-face card-face-front flex flex-col justify-between p-4">
+            
+            <!-- 1. Full-Bleed Background Image (100% Cover) -->
+            <img 
+              id="front-image"
+              src="http://localhost:5173/assets/philosophers/thales.jpg"
+              alt="Philosopher Artwork"
+              class="absolute inset-0 w-full h-full object-cover object-top pointer-events-none filter contrast-[1.06]"
+            />
+
+            <!-- 2. Subtle Cinematic Vignette / Contrast Gradients (Enhances Text Legibility) -->
+            <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/85 pointer-events-none"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-transparent to-black/30 pointer-events-none"></div>
+
+            <!-- 3. Hot-stamping Gold Foil Overlay (Front) -->
+            <div class="card-foil-overlay" id="front-foil-overlay">
+              <div class="foil-border-frame"></div>
+              <div class="foil-inner-rule"></div>
+              <div id="front-foil-corners" class="foil-corners-container"></div>
+              <div id="front-foil-surface" class="foil-pattern-surface"></div>
+              <div class="foil-dynamic-glint"></div>
+            </div>
+
+            <!-- 4. TOP FROSTED GLASS HEADER (Integrated, Clean, Refined) -->
+            <div class="glass-frosted-header rounded-2xl p-3.5 relative z-10 transition-all shadow-2xl">
+              <!-- Header Top Bar: School & Index / Timeline -->
+              <div class="flex items-center justify-between pb-1.5 border-b border-white/10 mb-2">
+                <span id="front-school" class="text-[10.5px] font-mono font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 laser-target-badge">
+                  朴素自然哲学
+                </span>
+                <div class="flex items-center gap-1.5 text-[10.5px] font-mono text-stone-400">
+                  <span id="front-index-code" class="text-amber-300/85 font-medium laser-target-sub">N°01 · 轴心纪元</span>
+                  <span class="text-stone-600">/</span>
+                  <span id="front-year-pill" class="text-stone-300">BC 624 - BC 546</span>
+                </div>
+              </div>
+
+              <!-- Master Name Line: Chinese Big + English Right -->
+              <div class="flex items-baseline justify-between gap-2">
+                <h2 id="front-name-zh" class="text-2xl font-black text-amber-50 tracking-wide drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] laser-target-title leading-tight">
+                  泰勒斯
+                </h2>
+                <span id="front-name-en" class="text-[11px] font-mono font-semibold tracking-widest text-amber-300/75 uppercase laser-target-sub">
+                  Thales of Miletus
+                </span>
+              </div>
+
+              <!-- Subtitle Row: Directly under philosopher name "苏格拉底下方小字 至圣导师" + Origin Location -->
+              <div class="mt-1.5 flex items-center justify-between text-[11px] font-mono">
+                <div class="flex items-center gap-1.5 text-amber-300">
+                  <span class="text-amber-400 text-xs">✦</span>
+                  <span id="front-rarity-tag" class="font-bold tracking-wider text-amber-200 laser-target-badge">先知印记</span>
+                </div>
+                <div class="flex items-center gap-1.5 text-[10.5px] text-stone-300/90">
+                  <span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  <span id="front-origin">古希腊 · 米利都城邦</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6. BOTTOM FROSTED GLASS QUOTE CONTAINER (Golden Core Insight) -->
+            <div class="glass-frosted-quote rounded-2xl p-4 relative z-10 shadow-2xl">
+              <!-- Decorative Quotation Mark -->
+              <div class="text-amber-400/50 text-3xl font-serif font-black leading-none mb-1">“</div>
+              <p id="front-quote" class="text-[14px] leading-relaxed text-stone-100 font-medium tracking-wide drop-shadow-md laser-target-quote">
+                万物的始基是水；大地如木筏般漂浮于浩瀚之水上。凡事皆有其自然的始端与因果。
+              </p>
+              <div class="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-[10.5px] font-mono text-stone-400">
+                <span id="front-quote-source" class="text-amber-300/90 italic laser-target-sub">—— 泰勒斯《论自然始基》</span>
+                <span class="text-amber-400/90 cursor-pointer hover:text-white transition-colors underline decoration-amber-400/40" onclick="event.stopPropagation(); triggerFlip()">点击翻转 ↻</span>
+              </div>
+            </div>
+
+            <!-- 7. Clean Specular Optical Sheen -->
+            <div id="specular-sheen-front" class="specular-sheen"></div>
+          </div>
+
+          <!-- ======================================== -->
+          <!-- B. BACK FACE: OBSIDIAN DOSSIER (180°)   -->
+          <!-- ======================================== -->
+          <div class="card-face card-face-back flex flex-col justify-between p-4">
+            
+            <!-- Blurred Full-bleed Artwork Background -->
+            <img 
+              id="back-image-blur"
+              src="http://localhost:5173/assets/philosophers/thales.jpg"
+              alt="Philosopher Artwork Blurred"
+              class="absolute inset-0 w-full h-full object-cover object-top pointer-events-none filter blur-md brightness-[0.22] contrast-[1.1]"
+            />
+
+            <!-- Hot-stamping Gold Foil Overlay (Back) -->
+            <div class="card-foil-overlay" id="back-foil-overlay">
+              <div class="foil-border-frame"></div>
+              <div class="foil-inner-rule"></div>
+              <div id="back-foil-corners" class="foil-corners-container"></div>
+              <div id="back-foil-surface" class="foil-pattern-surface"></div>
+              <div class="foil-dynamic-glint"></div>
+            </div>
+
+            <!-- Back Obsidian Glass Slate Container -->
+            <div class="glass-frosted-dossier rounded-2xl p-4 relative z-10 h-full flex flex-col justify-between border border-white/15">
+              
+              <!-- Dossier Top Header -->
+              <div>
+                <div class="flex items-center justify-between pb-2 border-b border-white/15">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-amber-400 text-xs font-black">✦</span>
+                    <span class="text-xs font-mono font-bold tracking-wider text-amber-200 uppercase laser-target-badge">
+                      先哲大典 · DOSSIER
+                    </span>
+                  </div>
+                  <span id="back-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 laser-target-badge">
+                    档案卷 N°01
+                  </span>
+                </div>
+
+                <!-- Title & Era Timeline -->
+                <div class="mt-2.5">
+                  <h3 id="back-title" class="text-lg font-bold text-amber-100 laser-target-title">
+                    泰勒斯生平与宇宙始基
+                  </h3>
+                  <p id="back-meta" class="text-[11px] font-mono text-amber-300/70 mt-0.5 laser-target-sub">
+                    公元前 624 - 前 546 · 希腊七贤之首
+                  </p>
+                </div>
+
+                <!-- Academic Abstract / Biography -->
+                <p id="back-summary" class="mt-2 text-xs leading-relaxed text-stone-300 font-sans">
+                  西方哲学之父。泰勒斯打破荷马史诗神意解释世界的传统，首次以自然实体统一宇宙现象，准确预测公元前585年日全食，奠定科学理性之基石。
+                </p>
+
+                <!-- Core Philosophical Concepts (Frosted Chips) -->
+                <div class="mt-3">
+                  <div class="text-[10px] font-mono text-amber-300/80 font-bold uppercase tracking-wider mb-1.5">
+                    ◆ 核心哲学范畴 / KEY CONCEPTS
+                  </div>
+                  <div id="back-concepts-list" class="space-y-1.5">
+                    <!-- Dynamic Concept Item 1 -->
+                    <div class="glass-chip rounded-lg p-2 text-left">
+                      <div class="text-xs font-bold text-amber-200 laser-target-badge">万物始基 (Arche)</div>
+                      <div class="text-[11px] text-stone-300 leading-normal mt-0.5">宇宙最初、最根本且派生出万物的统一物质本体。</div>
+                    </div>
+                    <!-- Dynamic Concept Item 2 -->
+                    <div class="glass-chip rounded-lg p-2 text-left">
+                      <div class="text-xs font-bold text-amber-200 laser-target-badge">物活论 (Hylozoism)</div>
+                      <div class="text-[11px] text-stone-300 leading-normal mt-0.5">物质本身具备内生活力与自发转化力量，非死寂机械。</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bottom Impact & Interaction Prompt -->
+              <div class="pt-2.5 border-t border-white/10 mt-2">
+                <div class="text-[10px] font-mono text-amber-300/80 font-bold uppercase tracking-wider mb-1">
+                  ◆ 文明回响 / CIVILIZATIONAL ECHO
+                </div>
+                <p id="back-impact" class="text-[11px] text-stone-300 leading-snug">
+                  人类首次将宇宙终极解释权从神话交还给自然因果律，开启了爱奥尼亚科学思辨时代。
+                </p>
+                <div class="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] font-mono text-amber-300/75">
+                  <span class="cursor-pointer text-amber-300 hover:text-white transition-colors underline decoration-amber-400/40" onclick="event.stopPropagation(); triggerFlip()">[ 点击卡片翻转回正面 ↻ ]</span>
+                  <span>按住拖拽试玩惯性 ✦</span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Clean Specular Optical Sheen on Back Face -->
+            <div id="specular-sheen-back" class="specular-sheen"></div>
+          </div>
+
+        </div>
+      </div>
+      
+      <!-- Tactile Ground Contact Ambient Shadow -->
+      <div id="ambient-ground-shadow" class="w-64 h-7 mx-auto rounded-full bg-black/60 filter blur-xl mt-6 transition-all duration-300"></div>
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- 3. BOTTOM SAMPLE DECK SELECTOR             -->
+  <!-- ========================================== -->
+  <footer class="w-full max-w-4xl z-20 flex flex-col items-center gap-2 mb-2">
+    <div class="text-xs font-mono text-stone-400 flex items-center gap-2">
+      <span>选择测试套牌 / DECK SELECTOR:</span>
+      <span class="text-stone-500">|</span>
+      <span class="text-amber-300/80">包含 4 位先哲与 1 处文化艺术名作</span>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-center gap-2">
+      <button onclick="selectCard(0)" class="deck-btn active-deck px-3 py-1.5 rounded-xl border text-xs font-mono transition-all" data-index="0">
+        🏛️ 泰勒斯 (Thales)
+      </button>
+      <button onclick="selectCard(1)" class="deck-btn px-3 py-1.5 rounded-xl border text-xs font-mono transition-all" data-index="1">
+        🦉 苏格拉底 (Socrates)
+      </button>
+      <button onclick="selectCard(2)" class="deck-btn px-3 py-1.5 rounded-xl border text-xs font-mono transition-all" data-index="2">
+        ⚖️ 康德 (Kant)
+      </button>
+      <button onclick="selectCard(3)" class="deck-btn px-3 py-1.5 rounded-xl border text-xs font-mono transition-all" data-index="3">
+        ⚡ 尼采 (Nietzsche)
+      </button>
+      <button onclick="selectCard(4)" class="deck-btn px-3 py-1.5 rounded-xl border text-xs font-mono transition-all" data-index="4">
+        🎨 雅典学院 (拉斐尔名作)
+      </button>
+    </div>
+  </footer>
+
+  <!-- ========================================== -->
+  <!-- 4. PARAMETER TUNING DRAWER (COLLAPSIBLE)   -->
+  <!-- ========================================== -->
+  <aside 
+    id="settings-drawer" 
+    class="fixed top-0 right-0 h-full w-88 sm:w-[420px] bg-stone-950/95 backdrop-blur-2xl border-l border-white/15 p-5 shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col justify-between overflow-y-auto"
+  >
+    <div class="space-y-6">
+      <!-- Drawer Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-white/15">
+        <div class="flex items-center gap-2">
+          <span class="text-amber-400 font-bold text-lg">✨</span>
+          <div>
+            <h2 class="text-sm font-bold text-amber-100 font-mono tracking-wide">
+              质感、烫金与镭射调控中心
+            </h2>
+            <p class="text-[10px] text-amber-300/70 font-mono">
+              Balatro SSR 物理与光影交互调色盘
+            </p>
+          </div>
+        </div>
+        <button onclick="toggleSettingsDrawer()" class="text-stone-400 hover:text-white text-lg font-mono p-1 transition-colors">
+          ✕
+        </button>
+      </div>
+
+      <!-- Quick Preset Combos -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-amber-200 font-mono flex items-center gap-1.5">
+            <span>⚡</span>
+            <span>精选一键搭配方案 (Curated Combos)</span>
+          </span>
+          <span class="text-[10px] font-mono text-stone-400">点击即享</span>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button 
+            id="preset-btn-chosen"
+            onclick="applyPreset('chosen')" 
+            class="preset-card active col-span-2 p-2.5 rounded-xl border border-amber-400/50 bg-amber-500/15 text-left flex flex-col gap-1 shadow-md transition-all"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-1.5 text-xs font-bold text-amber-300 font-mono">
+                <span>✨</span> 凝练臻金 · 典藏定制 (当前方案)
+              </div>
+              <span class="text-[9.5px] font-mono px-1.5 py-0.5 rounded bg-amber-400 text-stone-950 font-black">ACTIVE</span>
+            </div>
+            <div class="text-[10.5px] text-stone-300 leading-tight">
+              无杂乱箔纹 + 8px精密厚度 + 7°沉稳倾角 + 融金微芒20%
+            </div>
+          </button>
+
+          <button 
+            id="preset-btn-temple"
+            onclick="applyPreset('temple')" 
+            class="preset-card p-2.5 rounded-xl border border-white/10 bg-white/5 text-left flex flex-col gap-1"
+          >
+            <div class="flex items-center gap-1 text-xs font-bold text-amber-300">
+              <span>👑</span> 雅典神殿 · 古典浮雕金
+            </div>
+            <div class="text-[10px] text-stone-400 leading-tight">
+              古典浮雕鎏金 + 纯金高光
+            </div>
+          </button>
+
+          <button 
+            id="preset-btn-balatro"
+            onclick="applyPreset('balatro')" 
+            class="preset-card p-2.5 rounded-xl border border-white/10 bg-white/5 text-left flex flex-col gap-1"
+          >
+            <div class="flex items-center gap-1 text-xs font-bold text-amber-300">
+              <span>🃏</span> 小丑牌 · 稀世全息彩
+            </div>
+            <div class="text-[10px] text-stone-400 leading-tight">
+              哑光金箔 + 棱镜彩虹镭射
+            </div>
+          </button>
+
+          <button 
+            id="preset-btn-astral"
+            onclick="applyPreset('astral')" 
+            class="preset-card p-2.5 rounded-xl border border-white/10 bg-white/5 text-left flex flex-col gap-1"
+          >
+            <div class="flex items-center gap-1 text-xs font-bold text-amber-300">
+              <span>🌌</span> 星空先哲 · 宇宙织金
+            </div>
+            <div class="text-[10px] text-stone-400 leading-tight">
+              几何织金 + 极光珠光镭射
+            </div>
+          </button>
+
+          <button 
+            id="preset-btn-damascus"
+            onclick="applyPreset('damascus')" 
+            class="preset-card p-2.5 rounded-xl border border-white/10 bg-white/5 text-left flex flex-col gap-1"
+          >
+            <div class="flex items-center gap-1 text-xs font-bold text-amber-300">
+              <span>🏛️</span> 金缮哲思 · 大马士革
+            </div>
+            <div class="text-[10px] text-stone-400 leading-tight">
+              金丝流水纹 + 镜面融金光
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================================== -->
+      <!-- SECTION 1: HOT-STAMPING GOLD FOIL   -->
+      <!-- ==================================== -->
+      <div class="p-3.5 rounded-2xl bg-amber-950/20 border border-amber-500/25 space-y-3.5">
+        <div class="flex items-center justify-between border-b border-amber-500/20 pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-amber-400 text-sm">🪙</span>
+            <span class="text-xs font-bold font-mono text-amber-200">烫金纹理系统 (Gold Foil)</span>
+          </div>
+          <span id="badge-foil-style" class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            古典浮雕鎏金
+          </span>
+        </div>
+
+        <!-- Foil Style Options -->
+        <div>
+          <label class="text-[11px] text-stone-300 font-mono block mb-1.5">烫金纹理风格 (Foil Texture Style)</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button onclick="setFoilStyle('none')" class="foil-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="none">
+              无烫金
+            </button>
+            <button onclick="setFoilStyle('matte-leaf')" class="foil-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="matte-leaf">
+              经典哑光金箔
+            </button>
+            <button onclick="setFoilStyle('byzantine-filigree')" class="foil-style-btn fx-pill-btn active px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="byzantine-filigree">
+              古典浮雕鎏金
+            </button>
+            <button onclick="setFoilStyle('astral-geometric')" class="foil-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="astral-geometric">
+              星芒神圣织金
+            </button>
+            <button onclick="setFoilStyle('damascus-gold')" class="foil-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400 col-span-2" data-style="damascus-gold">
+              大马士革金丝流水纹
+            </button>
+          </div>
+        </div>
+
+        <!-- Foil Intensity Slider -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1">
+            <span class="text-stone-300">烫金光泽强度 (Foil Intensity)</span>
+            <span id="val-foil-intensity" class="text-amber-400 font-bold">75%</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-foil-intensity" 
+            min="0.10" 
+            max="1.00" 
+            step="0.05" 
+            value="0.75" 
+            class="w-full"
+            oninput="updateParam('foilIntensity', parseFloat(this.value))"
+          />
+        </div>
+
+        <!-- Foil Target Scope -->
+        <div>
+          <label class="text-[11px] text-stone-300 font-mono block mb-1.5">烫金作用区域 (Foil Coverage)</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button onclick="setFoilTarget('border-only')" class="foil-target-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-target="border-only">
+              仅卡框包金
+            </button>
+            <button onclick="setFoilTarget('corners-and-frames')" class="foil-target-btn fx-pill-btn active px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-target="corners-and-frames">
+              卡框 + 浮雕花纹
+            </button>
+            <button onclick="setFoilTarget('full-plate')" class="foil-target-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-target="full-plate">
+              全幅浅层金箔
+            </button>
+          </div>
+        </div>
+
+        <!-- Dynamic Foil Angle Glint Toggle -->
+        <div class="flex items-center justify-between pt-1">
+          <span class="text-xs font-mono text-stone-300">倾斜动态反光随动 (Dynamic Glint)</span>
+          <button 
+            id="btn-toggle-foil-dynamic"
+            onclick="toggleFoilDynamic()" 
+            class="px-2.5 py-1 rounded-lg border border-amber-400/40 bg-amber-500/20 text-amber-200 text-xs font-mono font-bold transition-all"
+          >
+            已开启 ✓
+          </button>
+        </div>
+      </div>
+
+      <!-- ==================================== -->
+      <!-- SECTION 2: HOLOGRAPHIC LASER TEXT   -->
+      <!-- ==================================== -->
+      <div class="p-3.5 rounded-2xl bg-indigo-950/25 border border-indigo-500/30 space-y-3.5">
+        <div class="flex items-center justify-between border-b border-indigo-500/20 pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-indigo-400 text-sm">🌈</span>
+            <span class="text-xs font-bold font-mono text-indigo-200">字体镭射特效 (Laser Typography)</span>
+          </div>
+          <span id="badge-laser-style" class="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+            全息棱镜彩虹
+          </span>
+        </div>
+
+        <!-- Laser Style Options -->
+        <div>
+          <label class="text-[11px] text-stone-300 font-mono block mb-1.5">镭射光泽模式 (Holographic Laser Mode)</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button onclick="setLaserStyle('none')" class="laser-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="none">
+              无镭射
+            </button>
+            <button onclick="setLaserStyle('prismatic-rainbow')" class="laser-style-btn fx-pill-btn active px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="prismatic-rainbow">
+              全息棱镜彩虹
+            </button>
+            <button onclick="setLaserStyle('cosmic-opaline')" class="laser-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="cosmic-opaline">
+              星云珠光极光
+            </button>
+            <button onclick="setLaserStyle('liquid-chrome-gold')" class="laser-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-style="liquid-chrome-gold">
+              液态融金高光
+            </button>
+            <button onclick="setLaserStyle('cyber-aether-neon')" class="laser-style-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400 col-span-2" data-style="cyber-aether-neon">
+              以太冷光微芒
+            </button>
+          </div>
+        </div>
+
+        <!-- Laser Intensity Slider -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1">
+            <span class="text-stone-300">镭射反光强度 (Laser Intensity)</span>
+            <span id="val-laser-intensity" class="text-indigo-300 font-bold">85%</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-laser-intensity" 
+            min="0.20" 
+            max="1.00" 
+            step="0.05" 
+            value="0.85" 
+            class="w-full"
+            oninput="updateParam('laserIntensity', parseFloat(this.value))"
+          />
+        </div>
+
+        <!-- Laser Sensitivity Slider -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1">
+            <span class="text-stone-300">光彩随动位移灵敏度 (Sensitivity)</span>
+            <span id="val-laser-sensitivity" class="text-indigo-300 font-bold">1.5x</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-laser-sensitivity" 
+            min="0.5" 
+            max="3.0" 
+            step="0.1" 
+            value="1.5" 
+            class="w-full"
+            oninput="updateParam('laserSensitivity', parseFloat(this.value))"
+          />
+        </div>
+
+        <!-- Laser Target Scope -->
+        <div>
+          <label class="text-[11px] text-stone-300 font-mono block mb-1.5">镭射覆盖范围 (Target Elements)</label>
+          <div class="grid grid-cols-3 gap-1.5">
+            <button onclick="setLaserTarget('title-only')" class="laser-target-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-target="title-only">
+              仅先哲大名
+            </button>
+            <button onclick="setLaserTarget('title-badge')" class="laser-target-btn fx-pill-btn active px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-target="title-badge">
+              姓名+徽章+术语
+            </button>
+            <button onclick="setLaserTarget('all-prominent')" class="laser-target-btn fx-pill-btn px-2 py-1.5 rounded-lg border border-white/10 bg-stone-900/60 text-[10.5px] font-mono text-stone-400" data-target="all-prominent">
+              全部主要文字
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================================== -->
+      <!-- SECTION 3: 3D SLAB & PHYSICS SLIDERS-->
+      <!-- ==================================== -->
+      <div class="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
+        <div class="flex items-center gap-1.5 border-b border-white/10 pb-2">
+          <span class="text-stone-300 text-sm">📦</span>
+          <span class="text-xs font-bold font-mono text-stone-200">卡牌 3D 物理与厚度参数 (Slab & Physics)</span>
+        </div>
+
+        <!-- 8. Slab Thickness -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-amber-200 font-bold">📦 卡牌物理厚度 (Slab Thickness)</span>
+            <span id="val-thickness" class="text-amber-400 font-bold">14px</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-thickness" 
+            min="2" 
+            max="26" 
+            step="1" 
+            value="14" 
+            class="w-full"
+            oninput="updateParam('thickness', parseInt(this.value))"
+          />
+          <div class="flex justify-between text-[9.5px] font-mono text-stone-500 mt-1">
+            <span>2px (纸质卡片)</span>
+            <span>14px (厚度适中)</span>
+            <span>26px (典藏重板)</span>
+          </div>
+        </div>
+
+        <!-- 1. Hover Scale -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-stone-300">🔍 悬停放大比例 (Hover Scale)</span>
+            <span id="val-hover-scale" class="text-amber-400 font-bold">1.08x</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-hover-scale" 
+            min="1.00" 
+            max="1.25" 
+            step="0.01" 
+            value="1.08" 
+            class="w-full"
+            oninput="updateParam('hoverScale', parseFloat(this.value))"
+          />
+        </div>
+
+        <!-- 2. Max Tilt Angle -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-stone-300">📐 鼠标角落倾角极值 (Max Tilt)</span>
+            <span id="val-max-tilt" class="text-amber-400 font-bold">18°</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-max-tilt" 
+            min="5" 
+            max="35" 
+            step="1" 
+            value="18" 
+            class="w-full"
+            oninput="updateParam('maxTilt', parseInt(this.value))"
+          />
+        </div>
+
+        <!-- 3. Perspective Depth -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-stone-300">🌌 3D 视距深度 (Perspective)</span>
+            <span id="val-perspective" class="text-amber-400 font-bold">1200px</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-perspective" 
+            min="600" 
+            max="2200" 
+            step="50" 
+            value="1200" 
+            class="w-full"
+            oninput="updateParam('perspective', parseInt(this.value))"
+          />
+        </div>
+
+        <!-- 4. Drag Inertia -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-stone-300">💨 拖拽甩动倾斜灵敏度 (Inertia)</span>
+            <span id="val-drag-inertia" class="text-amber-400 font-bold">0.35</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-drag-inertia" 
+            min="0.10" 
+            max="0.80" 
+            step="0.05" 
+            value="0.35" 
+            class="w-full"
+            oninput="updateParam('dragInertia', parseFloat(this.value))"
+          />
+        </div>
+
+        <!-- 5. Snapback Duration -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-stone-300">🧲 松手归位时长 (Snapback Duration)</span>
+            <span id="val-snap-duration" class="text-amber-400 font-bold">0.55s</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-snap-duration" 
+            min="0.30" 
+            max="0.95" 
+            step="0.05" 
+            value="0.55" 
+            class="w-full"
+            oninput="updateParam('snapDuration', parseFloat(this.value))"
+          />
+        </div>
+
+        <!-- 6. Elevate Z -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-stone-300">🏔️ 悬停离地浮空感 (Elevate Z)</span>
+            <span id="val-elevate-z" class="text-amber-400 font-bold">28px</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-elevate-z" 
+            min="12" 
+            max="50" 
+            step="2" 
+            value="28" 
+            class="w-full"
+            oninput="updateParam('elevateZ', parseInt(this.value))"
+          />
+        </div>
+
+        <!-- 7. Idle Amplitude -->
+        <div>
+          <div class="flex justify-between items-center text-xs font-mono mb-1.5">
+            <span class="text-stone-300">🪶 空闲呼吸悬浮幅度 (Idle Amp)</span>
+            <span id="val-idle-amp" class="text-amber-400 font-bold">6px</span>
+          </div>
+          <input 
+            type="range" 
+            id="slider-idle-amp" 
+            min="0" 
+            max="16" 
+            step="1" 
+            value="6" 
+            class="w-full"
+            oninput="updateParam('idleAmp', parseInt(this.value))"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer Footer Actions -->
+    <div class="mt-6 pt-4 border-t border-white/15 flex flex-col gap-2.5">
+      <div class="grid grid-cols-5 gap-2">
+        <button 
+          onclick="copyCurrentConfig()" 
+          class="col-span-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-mono font-bold text-xs shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-1.5"
+        >
+          <span>📋 复制当前调校方案 (JSON)</span>
+        </button>
+        <button
+          onclick="openExportModal()"
+          title="打开 JSON 方案导出窗口，可随时全选查看或复制"
+          class="col-span-1 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 border border-white/15 text-amber-300 font-mono text-xs flex items-center justify-center transition-colors"
+        >
+          <span>📄</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button 
+          onclick="openImportModal()" 
+          class="py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-white/15 text-amber-200 font-mono text-xs transition-colors flex items-center justify-center gap-1"
+        >
+          <span>📥 导入/粘贴方案</span>
+        </button>
+
+        <button 
+          onclick="resetToDefaults()" 
+          class="py-2 rounded-xl bg-stone-900 hover:bg-stone-800 border border-white/15 text-stone-300 font-mono text-xs transition-colors"
+        >
+          ↺ 恢复推荐参数
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Export Parameters Modal -->
+  <div 
+    id="export-modal" 
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+  >
+    <div class="bg-stone-900 border border-amber-400/40 rounded-2xl p-5 w-full max-w-md shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold font-mono text-amber-200">📋 方案导出 / 查看 JSON 参数</h3>
+        <button onclick="closeExportModal()" class="text-stone-400 hover:text-white font-mono text-lg">✕</button>
+      </div>
+      <p class="text-xs text-stone-400 font-mono leading-relaxed">
+        文本已自动全选。如点击复制按钮受浏览器权限拦截，可直接按 <kbd class="px-1.5 py-0.5 rounded bg-stone-800 text-amber-300 font-bold border border-white/10">Ctrl+C</kbd> 复制：
+      </p>
+      <textarea 
+        id="export-json-textarea" 
+        rows="10" 
+        readonly
+        class="w-full bg-stone-950 border border-amber-500/30 rounded-xl p-3 text-xs font-mono text-amber-100 focus:outline-none focus:border-amber-400 select-all leading-relaxed"
+      ></textarea>
+      <div class="flex gap-2 pt-2">
+        <button 
+          onclick="copyExportTextarea()" 
+          class="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-mono font-bold text-xs shadow-md flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+        >
+          <span>📋 一键复制到剪贴板</span>
+        </button>
+        <button 
+          onclick="closeExportModal()" 
+          class="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-mono text-xs"
+        >
+          关闭
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Parameters Modal -->
+  <div 
+    id="import-modal" 
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+  >
+    <div class="bg-stone-900 border border-amber-400/40 rounded-2xl p-5 w-full max-w-md shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold font-mono text-amber-200">📥 导入你的定制参数方案 (JSON)</h3>
+        <button onclick="closeImportModal()" class="text-stone-400 hover:text-white font-mono">✕</button>
+      </div>
+      <p class="text-xs text-stone-400 font-mono leading-relaxed">
+        请在下方文本框中粘贴你搭配好的 JSON 配置，点击应用即可立即预览。
+      </p>
+      <textarea 
+        id="import-json-textarea" 
+        rows="8" 
+        placeholder='粘贴 JSON 配置，如：
+{
+  "foilStyle": "byzantine-filigree",
+  "foilIntensity": 0.85,
+  "laserStyle": "liquid-chrome-gold",
+  "thickness": 14
+}'
+        class="w-full bg-stone-950 border border-white/20 rounded-xl p-3 text-xs font-mono text-amber-100 focus:outline-none focus:border-amber-400"
+      ></textarea>
+      <div class="flex gap-2 pt-2">
+        <button 
+          onclick="applyImportedConfig()" 
+          class="flex-1 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-mono font-bold text-xs shadow-md"
+        >
+          立即应用配置
+        </button>
+        <button 
+          onclick="closeImportModal()" 
+          class="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-mono text-xs"
+        >
+          取消
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div 
+    id="toast-msg" 
+    class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl bg-amber-500 text-stone-950 font-mono text-xs font-bold shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-50"
+  >
+    参数配置已复制到剪贴板！
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 5. JAVASCRIPT: SSR ENGINE & PHYSICS LOOP   -->
+  <!-- ========================================== -->
+  <script>
+    // ----------------------------------------------------
+    // A. 5 High-Definition Sample Cards Dataset
+    // ----------------------------------------------------
+    const DECK_DATA = [
+      {
+        id: 'thales',
+        rarity: '先知印记',
+        indexCode: 'N°01 · 轴心纪元',
+        nameZh: '泰勒斯',
+        nameEn: 'Thales of Miletus',
+        school: '朴素自然哲学',
+        yearPill: 'BC 624 - BC 546',
+        origin: '古希腊 · 米利都城邦',
+        image: 'http://localhost:5173/assets/philosophers/thales.jpg',
+        quote: '万物的始基是水；大地如木筏般漂浮于浩瀚之水上。凡事皆有其自然的始端与因果。',
+        quoteSource: '—— 泰勒斯《论自然始基》',
+        badge: '档案卷 N°01',
+        backTitle: '泰勒斯生平与宇宙始基',
+        backMeta: '公元前 624 - 前 546 · 希腊七贤之首',
+        summary: '西方哲学之父。泰勒斯打破荷马史诗神意解释世界的传统，首次以自然实体统一宇宙现象，准确预测公元前585年日全食，奠定科学理性之基石。',
+        concepts: [
+          { term: '万物始基 (Arche)', desc: '宇宙最初、最根本且派生出万物的统一物质本体。' },
+          { term: '物活论 (Hylozoism)', desc: '物质本身具备内生活力与自发转化力量，非死寂机械。' }
+        ],
+        impact: '人类首次将宇宙终极解释权从神话交还给自然因果律，开启了爱奥尼亚科学思辨时代。'
+      },
+      {
+        id: 'socrates',
+        rarity: '至圣导师',
+        indexCode: 'N°02 · 古典黄金期',
+        nameZh: '苏格拉底',
+        nameEn: 'Socrates',
+        school: '古典理性主义',
+        yearPill: 'BC 470 - BC 399',
+        origin: '古希腊 · 雅典集市',
+        image: 'http://localhost:5173/assets/philosophers/socrates.jpg',
+        quote: '未经审视的人生是不值得度过的。我唯一知道的，就是我一无所知。',
+        quoteSource: '—— 柏拉图《申辩篇》辑录',
+        badge: '档案卷 N°02',
+        backTitle: '苏格拉底产婆术与德性',
+        backMeta: '公元前 470 - 前 399 · 雅典公民',
+        summary: '西方伦理学与批判哲学的奠基者。他将哲学从浩瀚星空拉回人类心灵与城邦道德，以著名的诘问反讽破除世俗偏见，最终以身殉道，捍卫理性尊严。',
+        concepts: [
+          { term: '精神产婆术 (Maeutics)', desc: '通过循序渐进的诘问反讽，引导受教者自我破除盲从、孕育真正理性真知。' },
+          { term: '知识即美德 (Virtue is Knowledge)', desc: '真正的善恶并非外在威逼，唯有灵魂通晓真理方能行止自洽端正。' }
+        ],
+        impact: '奠定了西方哲学以理性论证为核心的传统，直接培育了柏拉图与亚里士多德。'
+      },
+      {
+        id: 'kant',
+        rarity: '启蒙丰碑',
+        indexCode: 'N°03 · 启蒙理性',
+        nameZh: '伊曼努尔·康德',
+        nameEn: 'Immanuel Kant',
+        school: '先验唯心论',
+        yearPill: 'AD 1724 - 1804',
+        origin: '普鲁士 · 哥尼斯堡',
+        image: 'http://localhost:5173/assets/philosophers/kant.jpg',
+        quote: '有两样东西常驻我心：头顶的璀璨星空与心中的道德法则。人是目的，绝非手段。',
+        quoteSource: '—— 康德《实践理性批判》',
+        badge: '档案卷 N°03',
+        backTitle: '康德哥白尼式哲学革命',
+        backMeta: '1724 - 1804 · 纯粹理性批判',
+        summary: '近代西方哲学的集大成者。康德发动认识论哥白尼革命，指出人类心智主动赋予经验以时空形式与范畴，一举终结唯理论与经验论的百年纷争。',
+        concepts: [
+          { term: '哥白尼式革命 (Copernican Turn)', desc: '不是心灵符合客体，而是客体必须符合人类先天直观形式与纯粹知性范畴。' },
+          { term: '绝对命令 (Categorical Imperative)', desc: '出于普遍自律法则而行动：你的准则必须能成为普遍法则；永远将人视为目的。' }
+        ],
+        impact: '构筑了近代哲学不可逾越的高峰，深刻塑型了现代伦理学、法学与德国唯心辩证法。'
+      },
+      {
+        id: 'nietzsche',
+        rarity: '深渊狂飙',
+        indexCode: 'N°04 · 现代裂变',
+        nameZh: '弗里德里希·尼采',
+        nameEn: 'Friedrich Nietzsche',
+        school: '权力意志与生命哲学',
+        yearPill: 'AD 1844 - 1900',
+        origin: '德意志帝国 · 魏玛',
+        image: 'http://localhost:5173/assets/philosophers/nietzsche.jpg',
+        quote: '上帝已死；凡杀不死我的，必使我更强大。每一个不曾起舞的日子，都是对生命的辜负。',
+        quoteSource: '—— 尼采《查拉图斯特拉如是说》',
+        badge: '档案卷 N°04',
+        backTitle: '尼采重估一切价值之剑',
+        backMeta: '1844 - 1900 · 悲剧的诞生',
+        summary: '现代激进思想巨擘。宣布传统两千年形而上学神圣支柱坍塌，直面现代虚无主义荒原，主张重估一切价值，以酒神力量与超人意志勇敢拥抱命运之爱。',
+        concepts: [
+          { term: '超人意志 (Übermensch)', desc: '在神圣信仰消亡的荒原上，自我立法、赋予生命崇高意义的自我超越者。' },
+          { term: '永恒轮回 (Amor Fati)', desc: '无条件热爱命运：若当下的痛苦与狂喜无限次重复上演，仍坚决呼喊“再来一次”。' }
+        ],
+        impact: '开启了存在主义、后现代解构主义、深层心理学与生命美学的浩瀚潮流。'
+      },
+      {
+        id: 'school-of-athens',
+        rarity: '传世名作',
+        indexCode: 'Echo N°01 · 文艺复兴',
+        nameZh: '雅典学院',
+        nameEn: 'The School of Athens',
+        school: '人文精神巅峰交响',
+        yearPill: 'AD 1509 - 1511',
+        origin: '梵蒂冈宗座宫 · 签字大厅',
+        image: 'http://localhost:5173/assets/echoes/school-of-athens.jpg',
+        quote: '柏拉图右手指向彼岸苍穹理念，亚里士多德掌心按向现实大地——人类理性求索的巅峰交响。',
+        quoteSource: '—— 拉斐尔·桑西巨幅壁画',
+        badge: '艺术回响卷',
+        backTitle: '拉斐尔《雅典学院》大观',
+        backMeta: '1509 - 1511 · 湿壁画 500cm × 770cm',
+        summary: '西方美术史与哲学史的双重丰碑。拉斐尔将古希腊不同时空的50余位先哲汇聚于宏伟穹顶之下，将唯心与唯物、算术与几何、神圣与世俗的思辨交响具象化为永恒视觉奇迹。',
+        concepts: [
+          { term: '双峰并峙', desc: '柏拉图持《蒂迈欧篇》指天，亚里士多德持《伦理学》朝地，象征西方两大学统根基。' },
+          { term: '古典理性复兴', desc: '将异教古典智者的崇高理性光辉，和谐融注于天主教文明中枢圣殿。' }
+        ],
+        impact: '成为整个人类文明追寻真理、理性对话与思想自由的最崇高视觉象征。'
+      }
+    ];
+
+    // ----------------------------------------------------
+    // B. Tunable Parameters & Defaults
+    // ----------------------------------------------------
+    const DEFAULT_PARAMS = {
+      // 1. Texture & Hot-Stamping Foil (烫金系统)
+      foilStyle: 'none', // 'none' | 'matte-leaf' | 'byzantine-filigree' | 'astral-geometric' | 'damascus-gold'
+      foilIntensity: 0.75, // 0.10 ~ 1.00
+      foilTarget: 'corners-and-frames', // 'border-only' | 'corners-and-frames' | 'full-plate'
+      foilDynamic: true, // boolean
+
+      // 2. Holographic Laser Typography (字体镭射特效)
+      laserStyle: 'liquid-chrome-gold', // 'none' | 'prismatic-rainbow' | 'cosmic-opaline' | 'liquid-chrome-gold' | 'cyber-aether-neon'
+      laserIntensity: 0.2, // 0.20 ~ 1.00
+      laserSensitivity: 1.5, // 0.5 ~ 3.0
+      laserTarget: 'title-badge', // 'title-only' | 'title-badge' | 'all-prominent'
+
+      // 3. 3D Physical Slab & Physics
+      thickness: 8,
+      hoverScale: 1.08,
+      maxTilt: 7,
+      perspective: 1800,
+      dragInertia: 0.35,
+      snapDuration: 0.55,
+      elevateZ: 28,
+      idleAmp: 6
+    };
+
+    let params = { ...DEFAULT_PARAMS };
+
+    // ----------------------------------------------------
+    // Predefined Curated Combos (一键精选搭配预设)
+    // ----------------------------------------------------
+    const PRESET_COMBOS = {
+      chosen: {
+        name: '凝练臻金 · 典藏定制 (当前方案)',
+        foilStyle: 'none',
+        foilIntensity: 0.75,
+        foilTarget: 'corners-and-frames',
+        foilDynamic: true,
+        laserStyle: 'liquid-chrome-gold',
+        laserIntensity: 0.2,
+        laserSensitivity: 1.5,
+        laserTarget: 'title-badge',
+        thickness: 8,
+        hoverScale: 1.08,
+        maxTilt: 7,
+        perspective: 1800,
+        dragInertia: 0.35,
+        snapDuration: 0.55,
+        elevateZ: 28,
+        idleAmp: 6
+      },
+      temple: {
+        name: '雅典神殿 · 古典浮雕金',
+        foilStyle: 'byzantine-filigree',
+        foilIntensity: 0.85,
+        foilTarget: 'corners-and-frames',
+        foilDynamic: true,
+        laserStyle: 'liquid-chrome-gold',
+        laserIntensity: 0.90,
+        laserSensitivity: 1.5,
+        laserTarget: 'title-badge',
+        thickness: 14
+      },
+      balatro: {
+        name: '小丑牌 · 稀世全息彩',
+        foilStyle: 'matte-leaf',
+        foilIntensity: 0.70,
+        foilTarget: 'border-only',
+        foilDynamic: true,
+        laserStyle: 'prismatic-rainbow',
+        laserIntensity: 0.85,
+        laserSensitivity: 1.8,
+        laserTarget: 'title-badge',
+        thickness: 14
+      },
+      astral: {
+        name: '星空先哲 · 宇宙织金',
+        foilStyle: 'astral-geometric',
+        foilIntensity: 0.80,
+        foilTarget: 'full-plate',
+        foilDynamic: true,
+        laserStyle: 'cosmic-opaline',
+        laserIntensity: 0.80,
+        laserSensitivity: 1.4,
+        laserTarget: 'all-prominent',
+        thickness: 14
+      },
+      damascus: {
+        name: '金缮哲思 · 大马士革',
+        foilStyle: 'damascus-gold',
+        foilIntensity: 0.85,
+        foilTarget: 'corners-and-frames',
+        foilDynamic: true,
+        laserStyle: 'liquid-chrome-gold',
+        laserIntensity: 0.95,
+        laserSensitivity: 1.6,
+        laserTarget: 'title-only',
+        thickness: 16
+      }
+    };
+
+    // ----------------------------------------------------
+    // C. DOM Elements & 3D Extrusion Engine
+    // ----------------------------------------------------
+    const card = document.getElementById('balatro-card');
+    const stage = document.getElementById('card-stage');
+    const idleWrapper = document.getElementById('card-idle-wrapper');
+    const sheenFront = document.getElementById('specular-sheen-front');
+    const sheenBack = document.getElementById('specular-sheen-back');
+    const ambientShadow = document.getElementById('ambient-ground-shadow');
+    const slicesContainer = document.getElementById('card-slab-slices');
+
+    // 3D Physical Extrusion Slices Engine (Solid Slab Edge)
+    const SLICE_COUNT = 10;
+    const slices = [];
+
+    function initSlices() {
+      if (!slicesContainer) return;
+      slicesContainer.innerHTML = '';
+      slices.length = 0;
+      for (let i = 0; i < SLICE_COUNT; i++) {
+        const slice = document.createElement('div');
+        slice.className = 'card-slab-slice';
+        slicesContainer.appendChild(slice);
+        slices.push(slice);
+      }
+      updateSlices(params.thickness);
+    }
+
+    function updateSlices(thickness) {
+      const half = thickness / 2;
+      card.style.setProperty('--half-thickness', `${half}px`);
+      card.style.setProperty('--card-thickness', `${thickness}px`);
+
+      slices.forEach((slice, i) => {
+        const t = (i + 1) / (SLICE_COUNT + 1);
+        const z = -half + t * thickness;
+        slice.style.transform = `translateZ(${z.toFixed(2)}px)`;
+      });
+    }
+
+    // ----------------------------------------------------
+    // D. State Variables
+    // ----------------------------------------------------
+    let currentCardIndex = 0;
+    let isFlipped = false;
+    let isDragging = false;
+    let isMouseDown = false;
+    let isHovered = false;
+
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let totalDragDist = 0;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+    let dragVelX = 0;
+    let dragVelY = 0;
+
+    let stageBounds = null;
+
+    function updateBounds() {
+      stageBounds = stage.getBoundingClientRect();
+    }
+    window.addEventListener('resize', updateBounds);
+    window.addEventListener('scroll', updateBounds);
+
+    // Initial idle animation setup
+    idleWrapper.classList.add('idle-animation');
+
+    let isFlipping = false;
+    let justFinishedDrag = false;
+    const DRAG_THRESHOLD = 25; // Pixels moved before considering intentional drag
+
+    // ----------------------------------------------------
+    // E. Stage Event Handlers (Version 1 Rock-Solid GPU Engine)
+    // ----------------------------------------------------
+
+    stage.addEventListener('mouseenter', () => {
+      updateBounds();
+      isHovered = true;
+      idleWrapper.classList.remove('idle-animation');
+      card.classList.add('card-shadow-elevated');
+    });
+
+    stage.addEventListener('mouseleave', () => {
+      isHovered = false;
+      if (!isMouseDown && !isFlipping) {
+        card.classList.remove('card-shadow-elevated');
+        card.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.25, 1)';
+        const baseFlip = isFlipped ? 180 : 0;
+        card.style.transform = `
+          translate3d(0px, 0px, 0px)
+          rotateX(0deg)
+          rotateY(${baseFlip}deg)
+          scale3d(1, 1, 1)
+        `;
+        sheenFront.style.setProperty('--sheen-opacity', '0');
+        sheenBack.style.setProperty('--sheen-opacity', '0');
+        ambientShadow.style.transform = 'scale(1) translateY(0px)';
+        ambientShadow.style.opacity = '0.6';
+
+        setTimeout(() => {
+          if (!isHovered && !isMouseDown) {
+            idleWrapper.classList.add('idle-animation');
+          }
+        }, 400);
+      }
+    });
+
+    // Mousedown on Card: Initiate Drag / Click
+    card.addEventListener('mousedown', (e) => {
+      if (e.button !== 0 || isFlipping) return;
+      isMouseDown = true;
+      isDragging = false;
+      totalDragDist = 0;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      lastMouseX = e.clientX;
+      lastMouseY = e.clientY;
+    });
+
+    // Global Mousemove: handles both hover tilt when over stage, and active card drag anywhere
+    window.addEventListener('mousemove', (e) => {
+      if (isFlipping) return;
+
+      // Handle active drag if mouse is down
+      if (isMouseDown) {
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        totalDragDist = Math.hypot(dx, dy);
+
+        if (totalDragDist > DRAG_THRESHOLD) {
+          isDragging = true;
+          dragVelX = e.clientX - lastMouseX;
+          dragVelY = e.clientY - lastMouseY;
+          lastMouseX = e.clientX;
+          lastMouseY = e.clientY;
+
+          const baseFlip = isFlipped ? 180 : 0;
+          const tiltX = Math.max(-params.maxTilt, Math.min(params.maxTilt, -dragVelY * params.dragInertia));
+          const tiltY = Math.max(-params.maxTilt, Math.min(params.maxTilt, dragVelX * params.dragInertia));
+
+          card.style.transition = 'none';
+          card.style.transform = `
+            translate3d(${dx}px, ${dy}px, 36px)
+            rotateX(${tiltX.toFixed(2)}deg)
+            rotateY(${(baseFlip + tiltY).toFixed(2)}deg)
+            scale3d(${params.hoverScale * 1.03}, ${params.hoverScale * 1.03}, 1)
+          `;
+
+          ambientShadow.style.transform = `scale(${Math.max(0.5, 1 - Math.abs(dy) / 400)}) translateY(${dy * 0.15}px)`;
+          ambientShadow.style.opacity = `${Math.max(0.15, 0.6 - Math.abs(dy) / 600)}`;
+          return;
+        }
+      }
+
+      // Check if mouse is within stage bounding box for robust hover
+      if (!stageBounds) updateBounds();
+      const isInside = (
+        e.clientX >= stageBounds.left &&
+        e.clientX <= stageBounds.right &&
+        e.clientY >= stageBounds.top &&
+        e.clientY <= stageBounds.bottom
+      );
+
+      if (isInside) {
+        if (!isHovered) {
+          isHovered = true;
+          idleWrapper.classList.remove('idle-animation');
+          card.classList.add('card-shadow-elevated');
+        }
+
+        if (!isDragging) {
+          const mouseX = e.clientX - stageBounds.left;
+          const mouseY = e.clientY - stageBounds.top;
+          const centerX = stageBounds.width / 2;
+          const centerY = stageBounds.height / 2;
+
+          const normY = Math.max(-1, Math.min(1, (mouseY - centerY) / centerY));
+          const normX = Math.max(-1, Math.min(1, (mouseX - centerX) / centerX));
+
+          const rotX = -normY * params.maxTilt;
+          const rotY = normX * params.maxTilt;
+
+          const baseFlip = isFlipped ? 180 : 0;
+          const mirrorRotY = isFlipped ? -rotY : rotY;
+
+          // 0.08s ease-out GPU transition for smooth responsiveness without jitter
+          // translate3d(0, 0, elevateZ) is ALWAYS FIRST so card is elevated towards viewer
+          card.style.transition = 'transform 0.08s ease-out';
+          card.style.transform = `
+            translate3d(0px, 0px, ${params.elevateZ}px)
+            rotateX(${rotX.toFixed(2)}deg)
+            rotateY(${(baseFlip + mirrorRotY).toFixed(2)}deg)
+            scale3d(${params.hoverScale}, ${params.hoverScale}, ${params.hoverScale})
+          `;
+
+          // Optical Sheen Tracking
+          const sheenX = Math.max(0, Math.min(100, (mouseX / stageBounds.width) * 100));
+          const sheenY = Math.max(0, Math.min(100, (mouseY / stageBounds.height) * 100));
+          sheenFront.style.setProperty('--mouse-x', `${sheenX}%`);
+          sheenFront.style.setProperty('--mouse-y', `${sheenY}%`);
+          sheenFront.style.setProperty('--sheen-opacity', '0.42');
+
+          sheenBack.style.setProperty('--mouse-x', `${sheenX}%`);
+          sheenBack.style.setProperty('--mouse-y', `${sheenY}%`);
+          sheenBack.style.setProperty('--sheen-opacity', '0.42');
+
+          // Dynamic Gold Foil Glint Tracking
+          if (params.foilDynamic) {
+            card.style.setProperty('--foil-x', `${sheenX.toFixed(1)}%`);
+            card.style.setProperty('--foil-y', `${sheenY.toFixed(1)}%`);
+            card.style.setProperty('--foil-glint-opacity', (0.75 * params.foilIntensity).toFixed(2));
+          }
+
+          // Dynamic Laser Typography Angle & Position Shifting
+          const laserShiftX = 50 + normX * 45 * params.laserSensitivity;
+          const laserShiftY = 50 + normY * 45 * params.laserSensitivity;
+          const laserAngle = 115 + normX * 35;
+          card.style.setProperty('--laser-pos-x', `${laserShiftX.toFixed(1)}%`);
+          card.style.setProperty('--laser-pos-y', `${laserShiftY.toFixed(1)}%`);
+          card.style.setProperty('--laser-angle', `${laserAngle.toFixed(1)}deg`);
+        }
+      }
+    });
+
+    // Window Mouseup: Drag Release
+    window.addEventListener('mouseup', (e) => {
+      if (!isMouseDown) return;
+      isMouseDown = false;
+
+      if (isDragging) {
+        // Drag Release -> Balatro Spring Snapback
+        isDragging = false;
+        justFinishedDrag = true;
+        setTimeout(() => { justFinishedDrag = false; }, 80);
+
+        card.style.transition = `transform ${params.snapDuration}s cubic-bezier(0.18, 0.89, 0.32, 1.28)`;
+        const baseFlip = isFlipped ? 180 : 0;
+        card.style.transform = `
+          translate3d(0px, 0px, ${isHovered ? params.elevateZ : 0}px)
+          rotateX(0deg)
+          rotateY(${baseFlip}deg)
+          scale3d(${isHovered ? params.hoverScale : 1}, ${isHovered ? params.hoverScale : 1}, 1)
+        `;
+
+        ambientShadow.style.transform = 'scale(1) translateY(0px)';
+        ambientShadow.style.opacity = '0.6';
+
+        setTimeout(() => {
+          if (!isHovered && !isMouseDown) {
+            idleWrapper.classList.add('idle-animation');
+          }
+        }, 550);
+      }
+    });
+
+    // Click on Card: Primary Tap-to-Flip Handler (Standard DOM Click)
+    card.addEventListener('click', (e) => {
+      if (justFinishedDrag || isDragging || isFlipping) return;
+      triggerFlip();
+    });
+
+    // Keyboard Spacebar for Flip
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+        e.preventDefault();
+        triggerFlip();
+      }
+    });
+
+    // ----------------------------------------------------
+    // F. Flip Trigger (180° Flip with Lock & Class Toggle)
+    // ----------------------------------------------------
+    function triggerFlip() {
+      if (isFlipping) return;
+      isFlipping = true;
+      isFlipped = !isFlipped;
+
+      if (isFlipped) {
+        card.classList.add('is-flipped');
+      } else {
+        card.classList.remove('is-flipped');
+      }
+
+      const baseFlip = isFlipped ? 180 : 0;
+      card.style.transition = 'transform 0.55s cubic-bezier(0.2, 0.85, 0.25, 1)';
+      card.style.transform = `
+        translate3d(0px, 0px, ${isHovered ? params.elevateZ : 0}px)
+        rotateX(0deg)
+        rotateY(${baseFlip}deg)
+        scale3d(${isHovered ? params.hoverScale : 1}, ${isHovered ? params.hoverScale : 1}, 1)
+      `;
+
+      setTimeout(() => {
+        isFlipping = false;
+      }, 550);
+    }
+
+    // ----------------------------------------------------
+    // H. Deck Selection & Rendering
+    // ----------------------------------------------------
+    function selectCard(index) {
+      currentCardIndex = index;
+      const data = DECK_DATA[index];
+
+      // Update Active Deck Button Styles
+      document.querySelectorAll('.deck-btn').forEach((btn, i) => {
+        if (i === index) {
+          btn.className = 'deck-btn px-3 py-1.5 rounded-xl border border-amber-400 bg-amber-500/25 text-amber-200 text-xs font-mono font-bold shadow-md';
+        } else {
+          btn.className = 'deck-btn px-3 py-1.5 rounded-xl border border-white/10 bg-stone-900/60 hover:bg-stone-800 text-stone-400 hover:text-stone-200 text-xs font-mono transition-colors';
+        }
+      });
+
+      // Front Face Data
+      document.getElementById('front-image').src = data.image;
+      document.getElementById('front-rarity-tag').textContent = data.rarity;
+      document.getElementById('front-index-code').textContent = data.indexCode;
+      document.getElementById('front-school').textContent = data.school;
+      document.getElementById('front-year-pill').textContent = data.yearPill;
+      document.getElementById('front-name-zh').textContent = data.nameZh;
+      document.getElementById('front-name-en').textContent = data.nameEn;
+      document.getElementById('front-origin').textContent = data.origin;
+      document.getElementById('front-quote').textContent = data.quote;
+      document.getElementById('front-quote-source').textContent = data.quoteSource;
+
+      // Back Face Data
+      document.getElementById('back-image-blur').src = data.image;
+      document.getElementById('back-badge').textContent = data.badge;
+      document.getElementById('back-title').textContent = data.backTitle;
+      document.getElementById('back-meta').textContent = data.backMeta;
+      document.getElementById('back-summary').textContent = data.summary;
+      document.getElementById('back-impact').textContent = data.impact;
+
+      // Render Concepts List
+      const conceptsContainer = document.getElementById('back-concepts-list');
+      conceptsContainer.innerHTML = '';
+      data.concepts.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'glass-chip rounded-lg p-2 text-left';
+        item.innerHTML = `
+          <div class="text-xs font-bold text-amber-200 laser-target-badge">${c.term}</div>
+          <div class="text-[11px] text-stone-300 leading-normal mt-0.5">${c.desc}</div>
+        `;
+        conceptsContainer.appendChild(item);
+      });
+      updateLaserSystem();
+    }
+
+    // ----------------------------------------------------
+    // I. Tunable Settings Drawer & Parameter Controls
+    // ----------------------------------------------------
+    let isDrawerOpen = false;
+    const drawer = document.getElementById('settings-drawer');
+
+    function toggleSettingsDrawer() {
+      isDrawerOpen = !isDrawerOpen;
+      if (isDrawerOpen) {
+        drawer.classList.remove('translate-x-full');
+      } else {
+        drawer.classList.add('translate-x-full');
+      }
+    }
+
+    function setFoilStyle(style) {
+      params.foilStyle = style;
+      const labelMap = {
+        'none': '无烫金',
+        'matte-leaf': '经典哑光金箔',
+        'byzantine-filigree': '古典浮雕鎏金',
+        'astral-geometric': '星芒神圣织金',
+        'damascus-gold': '大马士革金丝'
+      };
+      const badge = document.getElementById('badge-foil-style');
+      if (badge) badge.textContent = labelMap[style] || style;
+
+      document.querySelectorAll('.foil-style-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-style') === style);
+      });
+      updateFoilSystem();
+    }
+
+    function setFoilTarget(target) {
+      params.foilTarget = target;
+      document.querySelectorAll('.foil-target-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-target') === target);
+      });
+      updateFoilSystem();
+    }
+
+    function toggleFoilDynamic() {
+      params.foilDynamic = !params.foilDynamic;
+      const btn = document.getElementById('btn-toggle-foil-dynamic');
+      if (btn) {
+        btn.textContent = params.foilDynamic ? '已开启 ✓' : '已关闭 ✕';
+        btn.className = params.foilDynamic 
+          ? 'px-2.5 py-1 rounded-lg border border-amber-400/40 bg-amber-500/20 text-amber-200 text-xs font-mono font-bold transition-all'
+          : 'px-2.5 py-1 rounded-lg border border-white/10 bg-stone-900 text-stone-400 text-xs font-mono transition-all';
+      }
+      updateFoilSystem();
+    }
+
+    function setLaserStyle(style) {
+      params.laserStyle = style;
+      const labelMap = {
+        'none': '无镭射',
+        'prismatic-rainbow': '全息棱镜彩虹',
+        'cosmic-opaline': '星云珠光极光',
+        'liquid-chrome-gold': '液态融金高光',
+        'cyber-aether-neon': '以太冷光微芒'
+      };
+      const badge = document.getElementById('badge-laser-style');
+      if (badge) badge.textContent = labelMap[style] || style;
+
+      document.querySelectorAll('.laser-style-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-style') === style);
+      });
+      updateLaserSystem();
+    }
+
+    function setLaserTarget(target) {
+      params.laserTarget = target;
+      document.querySelectorAll('.laser-target-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-target') === target);
+      });
+      updateLaserSystem();
+    }
+
+    function updateFoilSystem() {
+      const frontOverlay = document.getElementById('front-foil-overlay');
+      const backOverlay = document.getElementById('back-foil-overlay');
+      if (!frontOverlay || !backOverlay) return;
+
+      if (params.foilStyle === 'none') {
+        frontOverlay.style.display = 'none';
+        backOverlay.style.display = 'none';
+        return;
+      }
+
+      frontOverlay.style.display = 'block';
+      backOverlay.style.display = 'block';
+      card.style.setProperty('--foil-intensity', params.foilIntensity);
+      card.style.setProperty('--foil-glint-opacity', params.foilDynamic ? (0.75 * params.foilIntensity) : 0);
+
+      // Symbol for corners
+      let symId = '';
+      if (params.foilStyle === 'byzantine-filigree') symId = '#byzantine-corner-sym';
+      else if (params.foilStyle === 'astral-geometric') symId = '#astral-star-sym';
+      else if (params.foilStyle === 'damascus-gold') symId = '#damascus-corner-sym';
+
+      const renderCorners = (containerId) => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        if (params.foilTarget === 'border-only' || !symId) {
+          container.style.display = 'none';
+          container.innerHTML = '';
+        } else {
+          container.style.display = 'block';
+          container.innerHTML = `
+            <svg class="foil-corner-svg foil-corner-tl"><use href="${symId}" /></svg>
+            <svg class="foil-corner-svg foil-corner-tr"><use href="${symId}" /></svg>
+            <svg class="foil-corner-svg foil-corner-bl"><use href="${symId}" /></svg>
+            <svg class="foil-corner-svg foil-corner-br"><use href="${symId}" /></svg>
+          `;
+        }
+      };
+
+      renderCorners('front-foil-corners');
+      renderCorners('back-foil-corners');
+
+      // Surface pattern
+      const renderSurface = (surfaceId) => {
+        const surface = document.getElementById(surfaceId);
+        if (!surface) return;
+        if (params.foilTarget === 'full-plate') {
+          surface.style.display = 'block';
+          surface.className = 'foil-pattern-surface';
+          if (params.foilStyle === 'matte-leaf') {
+            surface.classList.add('foil-pattern-matte-leaf');
+            surface.innerHTML = '';
+          } else if (params.foilStyle === 'astral-geometric') {
+            surface.innerHTML = `
+              <svg class="w-full h-full opacity-40 pointer-events-none" viewBox="0 0 380 560">
+                <circle cx="190" cy="280" r="160" stroke="url(#goldFoilGrad)" stroke-width="0.8" stroke-dasharray="4, 4" fill="none" />
+                <circle cx="190" cy="280" r="120" stroke="url(#goldFoilGrad)" stroke-width="1" fill="none" />
+                <circle cx="190" cy="280" r="70" stroke="url(#goldFoilGrad)" stroke-width="0.8" stroke-dasharray="2, 2" fill="none" />
+                <line x1="190" y1="60" x2="190" y2="500" stroke="url(#goldFoilGrad)" stroke-width="0.8" stroke-dasharray="6, 6" />
+                <line x1="30" y1="280" x2="350" y2="280" stroke="url(#goldFoilGrad)" stroke-width="0.8" stroke-dasharray="6, 6" />
+              </svg>
+            `;
+          } else if (params.foilStyle === 'damascus-gold') {
+            surface.innerHTML = `
+              <svg class="w-full h-full opacity-45 pointer-events-none" viewBox="0 0 380 560">
+                <path d="M0,80 Q120,130 200,60 T380,90 M0,200 Q140,260 240,190 T380,230 M0,360 Q130,420 230,340 T380,390 M0,470 Q150,530 270,450 T380,510" stroke="url(#goldFoilGrad)" stroke-width="1.2" fill="none" />
+              </svg>
+            `;
+          } else {
+            surface.innerHTML = '';
+          }
+        } else {
+          surface.style.display = 'none';
+          surface.innerHTML = '';
+        }
+      };
+
+      renderSurface('front-foil-surface');
+      renderSurface('back-foil-surface');
+    }
+
+    function updateLaserSystem() {
+      const targets = [];
+      if (params.laserTarget === 'title-only') {
+        targets.push('.laser-target-title');
+      } else if (params.laserTarget === 'title-badge') {
+        targets.push('.laser-target-title', '.laser-target-badge', '.laser-target-sub');
+      } else if (params.laserTarget === 'all-prominent') {
+        targets.push('.laser-target-title', '.laser-target-badge', '.laser-target-sub', '.laser-target-quote');
+      }
+
+      document.querySelectorAll('.laser-target-title, .laser-target-badge, .laser-target-sub, .laser-target-quote').forEach(el => {
+        el.classList.remove(
+          'laser-active',
+          'laser-style-prismatic-rainbow',
+          'laser-style-cosmic-opaline',
+          'laser-style-liquid-chrome-gold',
+          'laser-style-cyber-aether-neon'
+        );
+      });
+
+      if (params.laserStyle !== 'none') {
+        const selector = targets.join(', ');
+        if (selector) {
+          document.querySelectorAll(selector).forEach(el => {
+            el.classList.add('laser-active', `laser-style-${params.laserStyle}`);
+          });
+        }
+      }
+
+      card.style.setProperty('--laser-intensity', params.laserIntensity);
+    }
+
+    function applyPreset(key) {
+      const preset = PRESET_COMBOS[key];
+      if (!preset) return;
+
+      Object.assign(params, preset);
+
+      // Highlight active preset button
+      document.querySelectorAll('.preset-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.getElementById(`preset-btn-${key}`);
+      if (activeCard) activeCard.classList.add('active');
+
+      syncAllUI();
+      showToast(`已应用【${preset.name}】搭配方案！`);
+    }
+
+    function syncAllUI() {
+      // Sliders
+      const updateSlider = (id, val) => {
+        const slider = document.getElementById(id);
+        if (slider) slider.value = val;
+      };
+      updateSlider('slider-foil-intensity', params.foilIntensity);
+      updateSlider('slider-laser-intensity', params.laserIntensity);
+      updateSlider('slider-laser-sensitivity', params.laserSensitivity);
+      updateSlider('slider-thickness', params.thickness);
+      updateSlider('slider-hover-scale', params.hoverScale);
+      updateSlider('slider-max-tilt', params.maxTilt);
+      updateSlider('slider-perspective', params.perspective);
+      updateSlider('slider-drag-inertia', params.dragInertia);
+      updateSlider('slider-snap-duration', params.snapDuration);
+      updateSlider('slider-elevate-z', params.elevateZ);
+      updateSlider('slider-idle-amp', params.idleAmp);
+
+      // Readouts
+      if (document.getElementById('val-foil-intensity')) {
+        document.getElementById('val-foil-intensity').textContent = `${Math.round(params.foilIntensity * 100)}%`;
+      }
+      if (document.getElementById('val-laser-intensity')) {
+        document.getElementById('val-laser-intensity').textContent = `${Math.round(params.laserIntensity * 100)}%`;
+      }
+      if (document.getElementById('val-laser-sensitivity')) {
+        document.getElementById('val-laser-sensitivity').textContent = `${params.laserSensitivity.toFixed(1)}x`;
+      }
+      if (document.getElementById('val-thickness')) {
+        document.getElementById('val-thickness').textContent = `${params.thickness}px`;
+      }
+      if (document.getElementById('val-hover-scale')) {
+        document.getElementById('val-hover-scale').textContent = `${params.hoverScale.toFixed(2)}x`;
+      }
+      if (document.getElementById('val-max-tilt')) {
+        document.getElementById('val-max-tilt').textContent = `${params.maxTilt}°`;
+      }
+      if (document.getElementById('val-perspective')) {
+        document.getElementById('val-perspective').textContent = `${params.perspective}px`;
+      }
+      if (document.getElementById('val-drag-inertia')) {
+        document.getElementById('val-drag-inertia').textContent = params.dragInertia.toFixed(2);
+      }
+      if (document.getElementById('val-snap-duration')) {
+        document.getElementById('val-snap-duration').textContent = `${params.snapDuration.toFixed(2)}s`;
+      }
+      if (document.getElementById('val-elevate-z')) {
+        document.getElementById('val-elevate-z').textContent = `${params.elevateZ}px`;
+      }
+      if (document.getElementById('val-idle-amp')) {
+        document.getElementById('val-idle-amp').textContent = `${params.idleAmp}px`;
+      }
+
+      // Buttons
+      setFoilStyle(params.foilStyle);
+      setFoilTarget(params.foilTarget);
+      setLaserStyle(params.laserStyle);
+      setLaserTarget(params.laserTarget);
+
+      const foilDynBtn = document.getElementById('btn-toggle-foil-dynamic');
+      if (foilDynBtn) {
+        foilDynBtn.textContent = params.foilDynamic ? '已开启 ✓' : '已关闭 ✕';
+        foilDynBtn.className = params.foilDynamic 
+          ? 'px-2.5 py-1 rounded-lg border border-amber-400/40 bg-amber-500/20 text-amber-200 text-xs font-mono font-bold transition-all'
+          : 'px-2.5 py-1 rounded-lg border border-white/10 bg-stone-900 text-stone-400 text-xs font-mono transition-all';
+      }
+
+      updateSlices(params.thickness);
+      stage.style.setProperty('--perspective', `${params.perspective}px`);
+      idleWrapper.style.setProperty('--idle-amp', `${params.idleAmp}px`);
+    }
+
+    function updateParam(key, value) {
+      params[key] = value;
+      
+      // Update UI readouts
+      if (key === 'foilIntensity') {
+        document.getElementById('val-foil-intensity').textContent = `${Math.round(value * 100)}%`;
+        updateFoilSystem();
+      } else if (key === 'laserIntensity') {
+        document.getElementById('val-laser-intensity').textContent = `${Math.round(value * 100)}%`;
+        updateLaserSystem();
+      } else if (key === 'laserSensitivity') {
+        document.getElementById('val-laser-sensitivity').textContent = `${value.toFixed(1)}x`;
+      } else if (key === 'hoverScale') {
+        document.getElementById('val-hover-scale').textContent = `${value.toFixed(2)}x`;
+      } else if (key === 'maxTilt') {
+        document.getElementById('val-max-tilt').textContent = `${value}°`;
+      } else if (key === 'perspective') {
+        document.getElementById('val-perspective').textContent = `${value}px`;
+        stage.style.setProperty('--perspective', `${value}px`);
+      } else if (key === 'dragInertia') {
+        document.getElementById('val-drag-inertia').textContent = value.toFixed(2);
+      } else if (key === 'snapDuration') {
+        document.getElementById('val-snap-duration').textContent = `${value.toFixed(2)}s`;
+      } else if (key === 'elevateZ') {
+        document.getElementById('val-elevate-z').textContent = `${value}px`;
+      } else if (key === 'idleAmp') {
+        document.getElementById('val-idle-amp').textContent = `${value}px`;
+        idleWrapper.style.setProperty('--idle-amp', `${value}px`);
+      } else if (key === 'thickness') {
+        document.getElementById('val-thickness').textContent = `${value}px`;
+        updateSlices(value);
+      }
+    }
+
+    function resetToDefaults() {
+      params = { ...DEFAULT_PARAMS };
+      syncAllUI();
+      showToast('已恢复默认推荐参数配置！');
+    }
+
+    function copyTextFallback(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.top = '0';
+      textarea.style.left = '0';
+      textarea.style.width = '2em';
+      textarea.style.height = '2em';
+      textarea.style.padding = '0';
+      textarea.style.border = 'none';
+      textarea.style.outline = 'none';
+      textarea.style.boxShadow = 'none';
+      textarea.style.background = 'transparent';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      let successful = false;
+      try {
+        successful = document.execCommand('copy');
+      } catch (err) {
+        successful = false;
+      }
+      document.body.removeChild(textarea);
+      return successful;
+    }
+
+    function openExportModal(configStr) {
+      const modal = document.getElementById('export-modal');
+      const textarea = document.getElementById('export-json-textarea');
+      if (!modal || !textarea) return;
+      textarea.value = configStr || JSON.stringify(params, null, 2);
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        textarea.focus();
+        textarea.select();
+      }, 50);
+    }
+
+    function closeExportModal() {
+      const modal = document.getElementById('export-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function copyExportTextarea() {
+      const textarea = document.getElementById('export-json-textarea');
+      if (!textarea) return;
+      textarea.focus();
+      textarea.select();
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(textarea.value).then(() => {
+          showToast('✓ 已成功复制到剪贴板！');
+        }).catch(() => {
+          if (copyTextFallback(textarea.value)) {
+            showToast('✓ 已通过备用方式复制成功！');
+          } else {
+            showToast('已全选文本，请直接按 Ctrl+C 复制！');
+          }
+        });
+      } else {
+        if (copyTextFallback(textarea.value)) {
+          showToast('✓ 已复制到剪贴板！');
+        } else {
+          showToast('已全选文本，请直接按 Ctrl+C 复制！');
+        }
+      }
+    }
+
+    function copyCurrentConfig() {
+      const configStr = JSON.stringify(params, null, 2);
+
+      // Layer 1: Attempt modern Clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(configStr).then(() => {
+          showToast('✓ 定制方案配置已复制到剪贴板！');
+        }).catch(() => {
+          // Layer 2: execCommand fallback
+          if (copyTextFallback(configStr)) {
+            showToast('✓ 定制方案配置已复制到剪贴板！');
+          } else {
+            // Layer 3: Export Modal popup
+            openExportModal(configStr);
+            showToast('浏览器限制自动写入，已弹窗全选配置，按 Ctrl+C 即可复制！');
+          }
+        });
+      } else {
+        // Fallback for non-secure context
+        if (copyTextFallback(configStr)) {
+          showToast('✓ 定制方案配置已复制到剪贴板！');
+        } else {
+          openExportModal(configStr);
+          showToast('已打开导出弹窗，按 Ctrl+C 即可复制！');
+        }
+      }
+    }
+
+    function openImportModal() {
+      document.getElementById('import-modal').classList.remove('hidden');
+    }
+
+    function closeImportModal() {
+      document.getElementById('import-modal').classList.add('hidden');
+    }
+
+    function applyImportedConfig() {
+      const text = document.getElementById('import-json-textarea').value.trim();
+      if (!text) {
+        showToast('请先粘贴 JSON 配置');
+        return;
+      }
+      try {
+        const imported = JSON.parse(text);
+        Object.assign(params, imported);
+        syncAllUI();
+        closeImportModal();
+        showToast('✓ 成功导入并应用定制参数方案！');
+      } catch (err) {
+        alert('JSON 格式解析错误，请检查输入！\n' + err.message);
+      }
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById('toast-msg');
+      toast.textContent = text;
+      toast.classList.remove('opacity-0', 'pointer-events-none');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'pointer-events-none');
+      }, 2200);
+    }
+
+    // Initial setup
+    selectCard(0);
+    initSlices();
+    syncAllUI();
+  </script>
+</body>
+</html>

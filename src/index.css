@@ -1,0 +1,830 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --epoch-bg: #07080b;
+    --epoch-card: rgba(18, 20, 28, 0.45);
+    --epoch-text: #f4f4f6;
+    --epoch-muted: #a1a1aa;
+    --epoch-subtle: #52525b;
+    --epoch-accent: #d4a359;
+    --epoch-glow: rgba(212, 163, 89, 0.28);
+    --epoch-secondary: #71717a;
+    --epoch-border: rgba(255, 255, 255, 0.12);
+    --era-font-heading: 'Cinzel', 'Noto Serif SC', 'Playfair Display', serif;
+    --era-font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  }
+
+  /* Monument stele adaptive vertical sizing for laptop screens (<=820px viewport height) */
+  @media (max-height: 820px) {
+    .monument-content-stage {
+      gap: 0.35rem !important;
+      padding-top: 0.25rem !important;
+      padding-bottom: 0.25rem !important;
+    }
+    .monument-title {
+      font-size: 1.15rem !important;
+      line-height: 1.15 !important;
+    }
+    .monument-subtitle {
+      font-size: 0.65rem !important;
+      line-height: 1.1 !important;
+    }
+    .monument-sec-title {
+      font-size: 0.78rem !important;
+      line-height: 1.15 !important;
+    }
+    .monument-quote {
+      font-size: 0.72rem !important;
+      line-height: 1.25 !important;
+    }
+    .monument-author {
+      font-size: 0.65rem !important;
+    }
+    .monument-essence {
+      font-size: 0.7rem !important;
+      line-height: 1.25 !important;
+    }
+    .monument-inquiry {
+      font-size: 0.7rem !important;
+      line-height: 1.2 !important;
+    }
+    .monument-thinkers {
+      font-size: 0.62rem !important;
+    }
+    .monument-hairline {
+      margin-top: 0.2rem !important;
+      margin-bottom: 0.2rem !important;
+    }
+    .pavilion-thesis {
+      font-size: 0.92rem !important;
+      line-height: 1.3 !important;
+    }
+  }
+
+  /* 1. 轴心文明与古典源头 (Classical Antiquity) */
+  .theme-greek {
+    --epoch-bg: #06080e;
+    --epoch-accent: #d4a359;
+    --epoch-glow: rgba(212, 163, 89, 0.32);
+    --epoch-text: #f8fafc;
+    --epoch-border: rgba(212, 163, 89, 0.25);
+    --era-font-heading: 'Cinzel', 'Noto Serif SC', serif;
+  }
+
+  /* 2. 希腊化、罗马与中世纪经院 (Medieval & Scholasticism) */
+  .theme-medieval {
+    --epoch-bg: #080611;
+    --epoch-accent: #c88a2e;
+    --epoch-glow: rgba(200, 138, 46, 0.32);
+    --epoch-text: #f5f3ff;
+    --epoch-border: rgba(200, 138, 46, 0.25);
+    --era-font-heading: 'Cormorant Garamond', 'Noto Serif SC', serif;
+  }
+
+  /* 3. 文艺复兴与启蒙理性 (Enlightenment & Rationalism) */
+  .theme-enlightenment {
+    --epoch-bg: #0b0906;
+    --epoch-accent: #d97736;
+    --epoch-glow: rgba(217, 119, 54, 0.32);
+    --epoch-text: #fefce8;
+    --epoch-border: rgba(217, 119, 54, 0.25);
+    --era-font-heading: 'Playfair Display', 'Noto Serif SC', serif;
+  }
+
+  /* 4. 19世纪狂飙与批判 (19th Century Romanticism) */
+  .theme-nineteenth {
+    --epoch-bg: #0d080a;
+    --epoch-accent: #b83a4b;
+    --epoch-glow: rgba(184, 58, 75, 0.32);
+    --epoch-text: #fff1f2;
+    --epoch-border: rgba(184, 58, 75, 0.25);
+    --era-font-heading: 'Playfair Display', 'Noto Serif SC', serif;
+  }
+
+  /* 5. 20世纪现代主义与解构 (20th Century Modernism) */
+  .theme-modern {
+    --epoch-bg: #080a10;
+    --epoch-accent: #3b82c4;
+    --epoch-glow: rgba(59, 130, 196, 0.32);
+    --epoch-text: #f0f9ff;
+    --epoch-border: rgba(59, 130, 196, 0.25);
+    --era-font-heading: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  /* 6. 当代前沿与数智未来 (Contemporary Mind & Post-Humanity) */
+  .theme-contemporary {
+    --epoch-bg: #04080e;
+    --epoch-accent: #0ea5b7;
+    --epoch-glow: rgba(14, 165, 183, 0.35);
+    --epoch-text: #ecfeff;
+    --epoch-border: rgba(14, 165, 183, 0.25);
+    --era-font-heading: 'JetBrains Mono', 'Plus Jakarta Sans', monospace;
+  }
+
+  body {
+    background-color: var(--epoch-bg);
+    color: var(--epoch-text);
+    font-family: var(--era-font-body);
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 1s cubic-bezier(0.16, 1, 0.3, 1), color 1s ease;
+  }
+
+  ::selection {
+    background-color: var(--epoch-accent);
+    color: #050508;
+  }
+}
+
+/* =========================================================
+   极致性能优化与硬件加速层 (Performance & Hardware Acceleration)
+   ========================================================= */
+
+/* 高性能硬件加速隔离层：保证每个展厅独立渲染且无离屏二次排版卡顿 */
+.room-containment {
+  contain: layout paint;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.is-dragging {
+  cursor: grabbing !important;
+}
+
+/* 高性能深邃黑曜石展亭：零 GPU 高斯模糊开销，极致通透深邃 */
+.pavilion-obsidian-glass {
+  background: linear-gradient(
+    180deg,
+    rgba(24, 25, 32, 0.88) 0%,
+    rgba(14, 15, 20, 0.94) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 20px 50px -10px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pavilion-obsidian-glass:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 25px 60px -12px rgba(0, 0, 0, 0.85),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.32);
+}
+
+/* =========================================================
+   液态玻璃与博物馆空间核心样式 (Liquid Glass & Museum Styling)
+   ========================================================= */
+
+/* 1. 液态玻璃卡片容器 */
+.liquid-glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 20px 50px -10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 25px 60px -12px rgba(0, 0, 0, 0.8),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.45);
+}
+
+/* 1.1 思辨台沉浸式暗曜石吸光卡片 (Deep Obsidian Dialectic Card) */
+.dialectic-glass-card {
+  background: linear-gradient(
+    145deg,
+    rgba(18, 20, 28, 0.86) 0%,
+    rgba(10, 12, 17, 0.92) 100%
+  );
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 24px 55px -12px rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dialectic-glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 28px 65px -12px rgba(0, 0, 0, 0.82),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.28);
+}
+
+.font-dialectic {
+  font-family: 'Lora', 'Noto Serif SC', 'Source Han Serif SC', Georgia, serif;
+}
+
+/* 2. 液态玻璃药丸浮动条 (保留向后兼容) */
+.liquid-glass-pill {
+  background: rgba(18, 20, 28, 0.55);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 
+    0 12px 36px -6px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* 2.1 液态玻璃全宽矩形导航栏 (Liquid Glass Flush Rectangular Navigation Bar) */
+.liquid-glass-nav {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.10) 0%,
+    rgba(14, 18, 28, 0.45) 100%
+  );
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 
+    0 8px 32px -4px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+}
+
+/* 3. 艺术博物馆挂画画框系统 (Museum Salon Picture Frame System) */
+.museum-frame {
+  position: relative;
+  border: 6px solid #16171d;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 16px 36px -8px rgba(0, 0, 0, 0.8);
+  background-color: #0b0c10;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.museum-frame:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 24px 50px -10px rgba(0, 0, 0, 0.9),
+    0 0 30px -5px var(--epoch-glow);
+}
+
+/* 镇馆之宝：巨幅鎏金双层画框 (Hero Masterpiece Frame) */
+.museum-frame-hero {
+  position: relative;
+  border: 10px solid #1e1f26;
+  outline: 2px solid rgba(230, 183, 108, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 25px 60px -12px rgba(0, 0, 0, 0.9),
+    0 0 40px -10px var(--epoch-glow);
+  background-color: #08080a;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.museum-frame-hero:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.5),
+    0 35px 80px -15px rgba(0, 0, 0, 0.95),
+    0 0 60px -5px var(--epoch-glow);
+}
+
+/* 美术馆悬挂吊绳与黄铜挂钉 (Museum Salon Hanging Wire & Rosette) */
+.salon-hanging-wire {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.salon-hanging-wire::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fde047 30%, #b45309 100%);
+  box-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+  margin-bottom: -1px;
+}
+
+.salon-hanging-wire-line {
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 100%);
+}
+
+/* 4. 艺术博物馆黄铜展签铭牌 (Museum Brass Placard) */
+.museum-placard {
+  background: linear-gradient(145deg, rgba(26, 27, 34, 0.9) 0%, rgba(16, 17, 22, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 6px 16px -4px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+/* 5. 博物馆顶置聚光灯效果 (Museum Spotlight) */
+.museum-spotlight {
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.04) 45%,
+    transparent 70%
+  );
+}
+
+/* 6. 时代字体实用类 */
+/* =========================================================
+   六大时代专属艺术设计系统 (6 Distinct Era Design Systems)
+   ========================================================= */
+
+/* 1. 轴心文明与古典源头 (Axial Age & Classical Antiquity) */
+.era-axial {
+  --era-border-color: rgba(230, 183, 108, 0.4);
+  --era-bg-tint: rgba(26, 21, 16, 0.85);
+}
+.monument-era-axial {
+  background: linear-gradient(150deg, rgba(32, 27, 20, 0.92) 0%, rgba(18, 15, 12, 0.96) 100%);
+  border: 1px solid rgba(230, 183, 108, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(230, 183, 108, 0.3);
+}
+.frame-era-axial {
+  border: 6px solid #231d16;
+  outline: 1px solid rgba(230, 183, 108, 0.5);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(230, 183, 108, 0.2);
+  background-color: #120f0c;
+}
+.hero-frame-era-axial {
+  border: 10px solid #2c241b;
+  outline: 2px solid #e6b76c;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(230, 183, 108, 0.35);
+  background-color: #100d0a;
+}
+.divider-era-axial {
+  background: linear-gradient(to bottom, transparent, rgba(230, 183, 108, 0.5) 20%, rgba(230, 183, 108, 0.5) 80%, transparent);
+}
+
+/* 2. 希腊化与中世纪经院 (Hellenistic & Medieval Scholasticism) */
+.era-medieval {
+  --era-border-color: rgba(251, 191, 36, 0.45);
+  --era-bg-tint: rgba(24, 12, 36, 0.85);
+}
+.monument-era-medieval {
+  background: linear-gradient(150deg, rgba(28, 14, 42, 0.92) 0%, rgba(15, 7, 24, 0.96) 100%);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(251, 191, 36, 0.35);
+}
+.frame-era-medieval {
+  border: 6px solid #281534;
+  outline: 1px solid rgba(251, 191, 36, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 20px rgba(126, 34, 206, 0.3);
+  background-color: #13071c;
+}
+.hero-frame-era-medieval {
+  border: 10px solid #331742;
+  outline: 2px solid #fbbf24;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 45px rgba(251, 191, 36, 0.4);
+  background-color: #100618;
+}
+.divider-era-medieval {
+  background: linear-gradient(to bottom, transparent, rgba(251, 191, 36, 0.5) 20%, rgba(126, 34, 206, 0.6) 80%, transparent);
+}
+
+/* 3. 文艺复兴与启蒙理性 (Enlightenment & Rationalism) */
+.era-enlightenment {
+  --era-border-color: rgba(245, 158, 11, 0.45);
+  --era-bg-tint: rgba(14, 22, 38, 0.85);
+}
+.monument-era-enlightenment {
+  background: linear-gradient(150deg, rgba(16, 26, 46, 0.92) 0%, rgba(8, 14, 26, 0.96) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(245, 158, 11, 0.3);
+}
+.frame-era-enlightenment {
+  border: 6px solid #162238;
+  outline: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(30, 58, 138, 0.35);
+  background-color: #0c1322;
+}
+.hero-frame-era-enlightenment {
+  border: 10px solid #1a2c4a;
+  outline: 2px solid #f59e0b;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(245, 158, 11, 0.35);
+  background-color: #080f1e;
+}
+.divider-era-enlightenment {
+  background: linear-gradient(to bottom, transparent, rgba(245, 158, 11, 0.5) 20%, rgba(59, 130, 246, 0.5) 80%, transparent);
+}
+
+/* 4. 19世纪狂飙与工业批判 (19th Century Romanticism) */
+.era-nineteenth {
+  --era-border-color: rgba(244, 63, 94, 0.45);
+  --era-bg-tint: rgba(30, 14, 18, 0.85);
+}
+.monument-era-nineteenth {
+  background: linear-gradient(150deg, rgba(36, 16, 22, 0.92) 0%, rgba(18, 8, 12, 0.96) 100%);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(244, 63, 94, 0.3);
+}
+.frame-era-nineteenth {
+  border: 7px solid #2d1419;
+  outline: 1px solid rgba(244, 63, 94, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 20px rgba(244, 63, 94, 0.25);
+  background-color: #14080b;
+}
+.hero-frame-era-nineteenth {
+  border: 10px solid #3a161e;
+  outline: 2px solid #f43f5e;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 45px rgba(244, 63, 94, 0.35);
+  background-color: #120609;
+}
+.divider-era-nineteenth {
+  background: linear-gradient(to bottom, transparent, rgba(244, 63, 94, 0.55) 20%, rgba(244, 63, 94, 0.55) 80%, transparent);
+}
+
+/* 5. 20世纪现代主义与解构 (20th Century Modernism) */
+.era-modern {
+  --era-border-color: rgba(56, 189, 248, 0.45);
+  --era-bg-tint: rgba(14, 20, 30, 0.85);
+}
+.monument-era-modern {
+  background: linear-gradient(150deg, rgba(16, 24, 38, 0.92) 0%, rgba(8, 13, 22, 0.96) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(56, 189, 248, 0.3);
+}
+.frame-era-modern {
+  border: 4px solid #1a2230;
+  outline: 1px solid rgba(56, 189, 248, 0.5);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px rgba(37, 99, 235, 0.3);
+  background-color: #0a101c;
+  border-radius: 0px !important;
+}
+.hero-frame-era-modern {
+  border: 6px solid #223046;
+  outline: 2px solid #38bdf8;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(56, 189, 248, 0.35);
+  background-color: #080d18;
+  border-radius: 0px !important;
+}
+.divider-era-modern {
+  background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.5) 20%, rgba(234, 179, 8, 0.5) 80%, transparent);
+}
+
+/* 6. 当代前沿与数智未来 (Contemporary & Post-Humanity) */
+.era-contemporary {
+  --era-border-color: rgba(6, 182, 212, 0.55);
+  --era-bg-tint: rgba(6, 18, 26, 0.85);
+}
+.monument-era-contemporary {
+  background: linear-gradient(150deg, rgba(8, 24, 34, 0.92) 0%, rgba(3, 10, 16, 0.96) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(6, 182, 212, 0.35);
+}
+.frame-era-contemporary {
+  border: 2px solid rgba(6, 182, 212, 0.6);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 20px rgba(6, 182, 212, 0.35);
+  background-color: #03080e;
+  border-radius: 2px !important;
+}
+.hero-frame-era-contemporary {
+  border: 2px solid #06b6d4;
+  outline: 1px dashed rgba(168, 85, 247, 0.6);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95), 0 0 45px rgba(6, 182, 212, 0.4);
+  background-color: #02060b;
+  border-radius: 2px !important;
+}
+/* Hide scrollbar utility across browsers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* =================================================== */
+/* 7. BALATRO SSR 3D TACTILE CARD SYSTEM               */
+/* =================================================== */
+
+.balatro-card-stage {
+  width: 480px;
+  height: 680px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 1800px;
+  transform-style: preserve-3d;
+}
+
+@media (max-height: 860px) {
+  .balatro-card-stage {
+    transform: scale(0.88);
+    transform-origin: center center;
+  }
+}
+
+@media (max-height: 740px) {
+  .balatro-card-stage {
+    transform: scale(0.78);
+    transform-origin: center center;
+  }
+}
+
+@media (max-height: 640px) {
+  .balatro-card-stage {
+    transform: scale(0.68);
+    transform-origin: center center;
+  }
+}
+
+@media (max-width: 520px) {
+  .balatro-card-stage {
+    transform: scale(calc((100vw - 32px) / 480));
+    transform-origin: center center;
+  }
+}
+
+.balatro-card-idle-wrapper {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.balatro-card-idle-animation {
+  animation: balatro-idle-float 5s ease-in-out infinite;
+}
+
+@keyframes balatro-idle-float {
+  0%, 100% {
+    transform: translateY(0px) rotateZ(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotateZ(0.4deg);
+  }
+}
+
+.balatro-ssr-card {
+  width: 450px;
+  height: 650px;
+  border-radius: 28px;
+  position: relative;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  will-change: transform;
+  cursor: grab;
+  background: #0d0c14;
+}
+
+.balatro-ssr-card:active {
+  cursor: grabbing;
+}
+
+.balatro-ssr-card .card-face {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 28px;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  background: #0d0c14;
+}
+
+.balatro-ssr-card .card-face-front {
+  transform: rotateY(0deg) translateZ(var(--half-thickness, 4px));
+  z-index: 2;
+  pointer-events: auto;
+  box-shadow: 
+    0 0 0 1.5px rgba(212, 163, 89, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.85);
+}
+
+.balatro-ssr-card .card-face-back {
+  transform: rotateY(180deg) translateZ(var(--half-thickness, 4px));
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+  box-shadow: 
+    0 0 0 1.5px rgba(212, 163, 89, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+    inset 0 -2.5px 5px rgba(0, 0, 0, 0.9);
+}
+
+.balatro-ssr-card.is-flipped .card-face-front {
+  z-index: 1 !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+
+.balatro-ssr-card.is-flipped .card-face-back {
+  z-index: 3 !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  transition: opacity 0.25s ease;
+}
+
+/* 3D Physical Extruded Slab Edge Slices (Solid Slab Edge) */
+.card-slab-slice {
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: 28px;
+  pointer-events: none;
+  border: 1px solid rgba(190, 142, 60, 0.4);
+  background: linear-gradient(
+    135deg,
+    rgba(212, 163, 89, 0.22) 0%,
+    rgba(140, 95, 30, 0.45) 45%,
+    rgba(20, 16, 12, 0.85) 100%
+  );
+  box-shadow: 
+    inset 0 0 4px rgba(0, 0, 0, 0.8),
+    0 0 2px rgba(212, 163, 89, 0.35);
+}
+
+/* Dynamic Optical Specular Glass Sheen */
+.balatro-specular-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 28px;
+  mix-blend-mode: overlay;
+  background: radial-gradient(
+    circle 440px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.15) 30%,
+    transparent 65%
+  );
+  opacity: var(--sheen-opacity, 0.4);
+  transition: opacity 0.3s ease;
+}
+
+/* Liquid Molten Gold Typography Effect */
+.laser-style-liquid-chrome-gold {
+  background: linear-gradient(
+    var(--laser-angle, 125deg),
+    #d4a359 0%,
+    #fff2b2 35%,
+    #ffffff 50%,
+    #ffd56b 65%,
+    #b37822 100%
+  );
+  background-size: 200% 200%;
+  background-position: var(--laser-pos-x, 50%) var(--laser-pos-y, 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.75));
+}
+
+/* Frosted Glass Overlay Panels */
+.balatro-glass-header {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(14, 12, 18, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.balatro-glass-quote {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(14, 12, 18, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+}
+
+.balatro-glass-dossier {
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  background: rgba(12, 11, 15, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ==========================================================================
+   Balatro Focus Zoom Transitions (Zoom-to-Focus & Dismiss)
+   ========================================================================== */
+@keyframes balatro-focus-backdrop-in {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+}
+
+@keyframes balatro-focus-backdrop-out {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+}
+
+.balatro-focus-backdrop-in {
+  animation: balatro-focus-backdrop-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.balatro-focus-backdrop-out {
+  animation: balatro-focus-backdrop-out 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes balatro-focus-stage-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.68) translateY(32px);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0px);
+    filter: blur(0px);
+  }
+}
+
+@keyframes balatro-focus-stage-out {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0px);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.72) translateY(24px);
+    filter: blur(3px);
+  }
+}
+
+.balatro-focus-stage-in {
+  animation: balatro-focus-stage-in 0.36s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.balatro-focus-stage-out {
+  animation: balatro-focus-stage-out 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
+  will-change: transform, opacity;
+}
+
+/* Corridor Card Pedestal & Glass Elevation */
+.corridor-card-pedestal {
+  background: radial-gradient(ellipse 65% 100% at 50% 50%, rgba(245, 158, 11, 0.35) 0%, rgba(212, 163, 89, 0.1) 40%, transparent 80%);
+}
+
+/* Accessibility: Vestibular Protection & Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .balatro-card-idle-animation {
+    animation: none !important;
+  }
+  .balatro-focus-stage-in,
+  .balatro-focus-stage-out,
+  .balatro-focus-backdrop-in,
+  .balatro-focus-backdrop-out {
+    animation: none !important;
+    transform: none !important;
+    filter: none !important;
+    opacity: 1 !important;
+  }
+  .balatro-ssr-card {
+    transition: none !important;
+  }
+}
+
+
+
+

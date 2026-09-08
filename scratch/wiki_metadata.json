@@ -1,0 +1,190 @@
+{
+  "thales": {
+    "extract": "Thales of Miletus was a pre-Socratic Greek philosopher from Miletus in Ionia, Asia Minor. Thales was one of the Seven Sages, founding figures of Ancient Greece.",
+    "description": "Ancient Greek philosopher (c. 626 – c. 545 BC)"
+  },
+  "heraclitus": {
+    "extract": "Heraclitus was a pre-Socratic Greek philosopher from the city of Ephesus, which was then part of the Persian Empire. He exerts a wide influence on Western philosophy, both ancient and modern, through the works of such authors as Plato, Aristotle, the Stoics, Georg Wilhelm Friedrich Hegel, Friedrich Nietzsche, and Martin Heidegger.",
+    "description": "Ancient Greek philosopher (fl. c. 500 BC)"
+  },
+  "democritus": {
+    "extract": "Democritus was a pre-Socratic Greek philosopher from Abdera, primarily remembered today for his formulation of an atomic theory of the universe. Democritus wrote extensively on a wide variety of topics.",
+    "description": "Greek philosopher (c. 460–c. 370 BC)"
+  },
+  "laozi": {
+    "extract": "Laozi was a legendary Chinese philosopher considered to be the author of the Tao Te Ching, one of the foundational texts of Taoism. Modern scholarship generally regards his biographical details as later inventions and his opus a collaboration of various writers, with the name Laozi, literally meaning 'Old Master', likely intended to portray an archaic anonymity that could converse with Confucianism. Traditional accounts addend him as Li Er, born in the 6th-century BC state of Chu during China's Spring and Autumn period. Serving as the royal archivist for the Zhou court at Wangcheng, he met and impressed Confucius.",
+    "description": "Semi-legendary Chinese philosopher, founder of Taoism"
+  },
+  "zhuangzi": {
+    "extract": "",
+    "description": ""
+  },
+  "seneca": {
+    "extract": "Lucius Annaeus Seneca the Younger, usually known mononymously as Seneca, was a Stoic philosopher of Ancient Rome, a statesman, a dramatist, and in one work (Apocolocyntosis) a satirist from the post-Augustan age of Latin literature.",
+    "description": "Roman Stoic philosopher, statesman and dramatist (c. 4 BC–AD 65)"
+  },
+  "marcus-aurelius": {
+    "extract": "Marcus Aurelius Antoninus was Roman emperor from 161 to 180 and a Stoic philosopher. He was a member of the Nerva–Antonine dynasty, the last of the rulers later known as the Five Good Emperors and the last emperor of the Pax Romana, an age of relative peace, calm, and stability for the Roman Empire lasting from 27 BC to 180 AD. He served as Roman consul in 140, 145, and 161.",
+    "description": "Stoic philosopher, Roman emperor from 161 to 180"
+  },
+  "epicurus": {
+    "extract": "Epicurus was an ancient Greek philosopher who founded the philosophical school of Epicureanism, which teaches that management of one's desires, removal of unnecessary fears, friendship, and virtuous living lead to a pleasant life and constant happiness, the highest good.",
+    "description": "Ancient Greek philosopher (341–270 BC)"
+  },
+  "epictetus": {
+    "extract": "Epictetus was a Greek Stoic philosopher. He was born into slavery at Hierapolis, Phrygia and lived in Rome until his banishment, after which he spent the rest of his life in Nicopolis in northwestern Greece.",
+    "description": "Greek Stoic philosopher (c. 50 – c. 135)"
+  },
+  "augustine": {
+    "extract": "Augustine of Hippo, also well-known as Saint Augustine, was a Christian theologian and philosopher from Thagaste, Numidia Cirtensis and the Bishop of Hippo Regius. He is generally regarded as one of the most influential philosophers in the history of the Western world, and he is viewed as one of the most important Church Fathers of the Latin Church in the Patristic Period.",
+    "description": "Christian philosopher and theologian (354–430)"
+  },
+  "plotinus": {
+    "extract": "Plotinus was an ancient Greek philosopher, born and raised in Roman Egypt. He is widely regarded by modern scholars as the founder of Neoplatonism.",
+    "description": "Hellenistic Greek philosopher (c. 204/5–270)"
+  },
+  "thomas-aquinas": {
+    "extract": "Thomas Aquinas was an Italian Dominican friar and priest, theologian, and philosopher. He is considered one of the most influential thinkers in the history of Catholic theology and Western philosophy. He is the father of a school of thought known as Thomism. Thomas Aquinas was canonized as a saint by the Catholic Church, in 1323, by Pope John XXII, nearly 50 years after his death.",
+    "description": "Italian Dominican friar and philosopher (1225–1274)"
+  },
+  "william-ockham": {
+    "extract": "William of Ockham or Occam was an English Franciscan friar, scholastic philosopher and theologian. He is considered to be one of the major figures of medieval thought and was at the centre of the major intellectual and political controversies of the 14th century. The nominalists of the fifteenth century regarded him as one of the founders of their movement. He is widely known for Occam's razor, the methodological principle that bears his name. He produced significant works on logic, physics and theology. Ockham is remembered in the Church of England with a commemoration corresponding to the commonly ascribed date of his death on 10 April.",
+    "description": "English Franciscan friar and theologian (c. 1287–1347)"
+  },
+  "spinoza": {
+    "extract": "Baruch (de) Spinoza, also known under his Latinized pen name Benedictus de Spinoza, was a philosopher of Portuguese-Jewish origin who was born and lived in the Dutch Republic. A forerunner of the Enlightenment, Spinoza significantly influenced modern biblical criticism, 17th-century rationalism, and Dutch intellectual culture, establishing himself as one of the most important and radical philosophers of the early modern period. Influenced by Stoicism, Thomas Hobbes, René Descartes, and heterodox Christians, Spinoza was a leading philosopher of the Dutch Golden Age.",
+    "description": "Portuguese-Dutch philosopher (1632–1677)"
+  },
+  "leibniz": {
+    "extract": "Gottfried Wilhelm Leibniz was a German polymath active as a mathematician, philosopher, scientist, and diplomat who is credited, alongside Isaac Newton, with the creation of calculus in addition to many other branches of mathematics, such as binary arithmetic and statistics. Leibniz has been called the \"last universal genius\" due to his vast expertise across fields, which became a rarity after his lifetime with the coming of the Industrial Revolution and the spread of specialized labour. He is a prominent figure in both the history of philosophy and the history of mathematics. He wrote works on philosophy, theology, ethics, politics, law, history, philology, games, music, economics and other studies. Leibniz also made major contributions to physics and technology, and anticipated notions that surfaced much later in probability theory, biology, medicine, geology, psychology, linguistics and computer science.",
+    "description": "German polymath (1646–1716)"
+  },
+  "berkeley": {
+    "extract": "George Berkeley, known as Bishop Berkeley, was an Anglo-Irish philosopher, writer, and clergyman who is regarded as the founder of immaterialism, a philosophical theory he developed which later came to be known as subjective idealism. He has also been called \"the father of idealism\" by German philosopher Arthur Schopenhauer. Berkeley played a leading role in the empiricism movement and was one of its pioneers. He was among the most cited philosophers of 18th-century Europe, and his works deeply influenced later thinkers such as Immanuel Kant and David Hume.",
+    "description": "Anglo-Irish philosopher and bishop (1685–1753)"
+  },
+  "hume": {
+    "extract": "David Hume was a Scottish philosopher, historian, economist and essayist who is known for his highly influential system of empiricism, philosophical scepticism and metaphysical naturalism. Beginning with A Treatise of Human Nature (1739–40), Hume strove to create a naturalistic science of man that examined the psychological basis of human nature. Following John Locke, Hume rejected the existence of innate ideas, holding that all our ideas derive ultimately from impressions, but in his fork he distinguished relations of ideas, known a priori, from matters of fact, whose knowledge rests on experience. This places him in the empiricist tradition of Locke and George Berkeley, while drawing his experimental method from Francis Bacon.",
+    "description": "Scottish philosopher, historian, economist and essayist (1711–1776)"
+  },
+  "hobbes": {
+    "extract": "Thomas Hobbes was an English philosopher and political theorist, best known for his 1651 book Leviathan, in which he expounds an influential formulation of social contract theory. He is considered to be one of the founders of modern political philosophy.",
+    "description": "English philosopher and political theorist (1588–1679)"
+  },
+  "rousseau": {
+    "extract": "Jean-Jacques Rousseau was a Genevan philosopher, philosophe, writer, and composer. His political philosophy influenced the progress of the Age of Enlightenment throughout Europe, as well as aspects of the French Revolution and the development of modern political, economic, and educational thought.",
+    "description": "Genevan philosopher, writer, and composer (1712–1778)"
+  },
+  "montesquieu": {
+    "extract": "Charles Louis de Secondat, baron de La Brède et de Montesquieu, generally referred to as simply Montesquieu, was a French jurist, historian, and political philosopher.",
+    "description": "French jurist, historian, and political philosopher (1689–1755)"
+  },
+  "hegel": {
+    "extract": "Georg Wilhelm Friedrich Hegel was a German philosopher and a major figure in the tradition of German idealism. His influence on Western philosophy extends across a wide range of topics—from metaphysical issues in epistemology and ontology, to political philosophy, to philosophy of art and philosophy of religion.",
+    "description": "German philosopher (1770–1831)"
+  },
+  "fichte": {
+    "extract": "Johann Gottlieb Fichte was a German philosopher, and a founding figure of German idealism, which developed from the theoretical and ethical writings of Immanuel Kant.",
+    "description": "German philosopher (1762–1814)"
+  },
+  "marx": {
+    "extract": "Karl Marx was a German philosopher, social and political theorist, and revolutionary socialist. He developed the theory of historical materialism, analysing societal structure and change, particularly class struggle under capitalism, and predicting the system's ultimate replacement by communism. Marx co-authored The Communist Manifesto (1848) with Friedrich Engels, and undertook a critique of classical political economy in his magnum opus, Das Kapital (1867–1894). His ideas and their later development, collectively known as Marxism, have had enormous influence on intellectual, political, and social history, and have inspired revolutionary movements in many countries.",
+    "description": "German philosopher and socialist (1818–1883)"
+  },
+  "feuerbach": {
+    "extract": "Ludwig Andreas Feuerbach was a German philosopher and anthropologist who was a leading figure among the Young Hegelians. He is best known for his 1841 book, The Essence of Christianity, which argued that God is a projection of the essential attributes of humanity. His critique of religion formed the basis for his advocacy of atheism, materialism, and sensualism. His thought served as a critical bridge between the philosophy of Georg Wilhelm Friedrich Hegel and that of Karl Marx.",
+    "description": "German philosopher and anthropologist (1804–1872)"
+  },
+  "schopenhauer": {
+    "extract": "Arthur Schopenhauer, also known as the “Philosopher of Pessimism”, was a German philosopher and writer. He is known for his 1818 work The World as Will and Representation, which characterizes the phenomenal world as the manifestation of a blind and irrational noumenal will. Building on the transcendental idealism of Immanuel Kant, Schopenhauer developed an atheistic, metaphysical and ethical system that rejected the contemporaneous ideas of German idealism.",
+    "description": "German philosopher (1788–1860)"
+  },
+  "kierkegaard": {
+    "extract": "Søren Aabye Kierkegaard was a Danish philosopher, theologian, poet, social critic, and religious author who is widely considered to be the first existentialist philosopher. He wrote critical texts on organized religion, Christianity, morality, ethics, psychology, love, and the philosophy of religion, displaying a fondness for metaphor, irony, and parables. Much of his philosophical work deals with the issues around how one lives as a \"single individual\", highlighting the importance of authenticity, personal choice and commitment, and the duty to love. Kierkegaard prioritized concrete human reality over abstract thinking.",
+    "description": "Danish philosopher and theologian (1813–1855)"
+  },
+  "frege": {
+    "extract": "Friedrich Ludwig Gottlob Frege was a German philosopher, logician, and mathematician. He was a mathematics professor at the University of Jena, and is understood by many to be the father of analytic philosophy, concentrating on the philosophy of language, logic, and mathematics. Though he was largely ignored during his lifetime, Giuseppe Peano (1858–1932), Bertrand Russell (1872–1970), and, to some extent, Ludwig Wittgenstein (1889–1951) introduced his work to later generations of philosophers. Frege is widely considered to be one of the greatest logicians since Aristotle, and one of the most profound philosophers of mathematics ever.",
+    "description": "German philosopher, logician, and mathematician (1848–1925)"
+  },
+  "russell": {
+    "extract": "Bertrand Arthur William Russell, 3rd Earl Russell, was an English philosopher, logician, and social reformer.",
+    "description": "English philosopher and logician (1872–1970)"
+  },
+  "wittgenstein": {
+    "extract": "Ludwig Josef Johann Wittgenstein was an Austro-British philosopher who worked in logic, philosophy of mathematics, philosophy of mind, and philosophy of language.",
+    "description": "Austrian philosopher and logician (1889–1951)"
+  },
+  "husserl": {
+    "extract": "Edmund Gustav Albrecht Husserl was an Austrian and German philosopher and mathematician who established the school of phenomenology.",
+    "description": "Austrian-German philosopher and mathematician (1859–1938)"
+  },
+  "heidegger": {
+    "extract": "Martin Heidegger was a German philosopher whose work was central to the development of phenomenology, hermeneutics, and existentialism. He has had significant impact within subsequent philosophy, social sciences and humanities, and theology.",
+    "description": "German philosopher (1889–1976)"
+  },
+  "camus": {
+    "extract": "Albert Camus was a French philosopher, writer, and political activist. He was the recipient of the 1957 Nobel Prize in Literature at the age of 44, the second-youngest recipient in history, and the first laureate in literature born in Africa. His works include The Stranger, The Plague, The Myth of Sisyphus, The Fall and The Rebel.",
+    "description": "French philosopher and writer (1913–1960)"
+  },
+  "adorno": {
+    "extract": "Theodor W. Adorno was a German philosopher, cultural, and music critic. He was a leading member of the Frankfurt School of critical theory, whose work has come to be associated with thinkers such as Ernst Bloch, Walter Benjamin, Max Horkheimer, Erich Fromm, and Herbert Marcuse, for whom the works of Sigmund Freud, Karl Marx, and G. W. F. Hegel were essential to a critique of modern society. As a critic of both fascism and what he called the culture industry, he authored numerous works—such as Dialectic of Enlightenment (1947), Minima Moralia (1951), and Negative Dialectics (1966)—that strongly influenced the European New Left.",
+    "description": "German philosopher, sociologist, and theorist (1903–1969)"
+  },
+  "horkheimer": {
+    "extract": "Max Horkheimer was a German philosopher and sociologist best known for his role in developing critical theory as director of the Institute for Social Research, commonly associated with the Frankfurt School.",
+    "description": "German philosopher and sociologist (1895–1973)"
+  },
+  "marcuse": {
+    "extract": "Herbert Marcuse was a German and American philosopher, social critic, and political theorist, associated with the Frankfurt School of critical theory. Born in Berlin, Marcuse studied at the Friedrich Wilhelm University of Berlin and then at the University of Freiburg, where he received his PhD under the supervision of Martin Heidegger. He was a prominent figure in the Frankfurt-based Institute for Social Research, which later became known as the Frankfurt School. In his written works, he criticized capitalism, modern technology, Soviet Communism, and popular culture, arguing that they represent new forms of social control.",
+    "description": "German–American philosopher, sociologist, and political theorist (1898–1979)"
+  },
+  "benjamin": {
+    "extract": "Walter Bendix Schönflies Benjamin was a German philosopher, cultural critic, media theorist, and essayist. An eclectic thinker who combined elements of German idealism, Jewish mysticism, Western Marxism, and post-Kantianism, he made contributions to the philosophy of history, metaphysics, historical materialism, criticism, and aesthetics, and had an oblique but overwhelmingly influential impact on the resurrection of the Kabbalah by virtue of his life-long epistolary relationship with Gershom Scholem.",
+    "description": "German cultural critic, philosopher and social critic (1892–1940)"
+  },
+  "foucault": {
+    "extract": "Paul-Michel Foucault, known as Michel Foucault, was a French philosopher, literary critic, and historian of ideas who analyzed the relationships between power, knowledge, and liberty, and how they are used as a form of social control through institutions. Sometimes called a structuralist or postmodernist, he rejected these labels and sought to critique authority without limiting himself. His thought has influenced academics in many areas of study, including anthropology, communication studies, criminology, cultural studies, feminism, literary theory, psychology, and sociology. His arguments against homophobia, racial prejudice, and other ideological doctrines have also shaped scholarship on critical theory and Marxism.",
+    "description": "French philosopher (1926–1984)"
+  },
+  "derrida": {
+    "extract": "Jacques Derrida was a French philosopher. He developed the philosophy of deconstruction, which he applied in some of his texts, and which he developed through close readings of the linguistics of Ferdinand de Saussure and Husserlian and Heideggerian phenomenology. He is one of the major figures associated with post-structuralism and postmodern philosophy although he distanced himself from post-structuralism and disavowed the word \"postmodernity\".",
+    "description": "French philosopher (1930–2004)"
+  },
+  "baudrillard": {
+    "extract": "Jean Baudrillard was a French sociologist and philosopher with an interest in cultural studies. He is best known for his analyses of media, contemporary culture, and technological communication, as well as his formulation of concepts such as hyperreality. Baudrillard wrote about diverse subjects, including consumerism, critique of economy, social history, aesthetics, Western foreign policy, and popular culture. Among his best-known works are Forget Foucault (1977), Seduction (1978), Simulacra and Simulation (1981), America (1986), and The Gulf War Did Not Take Place (1991). His work is frequently associated with postmodernism and specifically post-structuralism. Nevertheless, Baudrillard had also opposed post-structuralism, and had distanced himself from postmodernism.",
+    "description": "French sociologist and philosopher (1929–2007)"
+  },
+  "deleuze": {
+    "extract": "Gilles Louis René Deleuze was a French philosopher who, from the early 1950s until his death in 1995, wrote on a variety of subjects including ontology, social critique, film theory, and fine art. His most popular works were the two volumes of Capitalism and Schizophrenia: Anti-Oedipus (1972) and A Thousand Plateaus (1980), both co-written with long-term collaborator Félix Guattari. His metaphysical treatise Difference and Repetition (1968) is considered to be his magnum opus.",
+    "description": "French philosopher (1925–1995)"
+  },
+  "chalmers": {
+    "extract": "David John Chalmers is an Australian philosopher and cognitive scientist, specializing in philosophy of mind and philosophy of language. He is a professor of philosophy and neural science at New York University (NYU), as well as co-director of NYU's Center for Mind, Brain and Consciousness. In 2006, he was elected a fellow of the Australian Academy of the Humanities. In 2013, he was elected as a fellow of the American Academy of Arts and Sciences.",
+    "description": "Australian philosopher and cognitive scientist (born 1966)"
+  },
+  "searle": {
+    "extract": "John Rogers Searle was an American philosopher widely noted for contributions to the philosophy of language, philosophy of mind, and social philosophy. He was the Willis S. and Marion Slusser Professor of the Philosophy of Mind and Language at the University of California, Berkeley.",
+    "description": "American philosopher (1932–2025)"
+  },
+  "nagel": {
+    "extract": "Thomas Nagel is an American postanalytic philosopher. He is a professor of philosophy, a professor of law, and University Professor of Philosophy and Law Emeritus at New York University. From 2001 to 2003, he was the Fiorello LaGuardia Professor of Law at the New York University School of Law. His main areas of philosophical interest are political philosophy, ethics, and philosophy of mind.",
+    "description": "American philosopher (born 1937)"
+  },
+  "dennett": {
+    "extract": "Daniel Clement Dennett III was an American philosopher and cognitive scientist. His research centered on philosophy of mind, philosophy of science, and philosophy of biology, particularly as those fields relate to evolutionary biology and cognitive science.",
+    "description": "American philosopher (1942–2024)"
+  },
+  "donna-haraway": {
+    "extract": "Donna Jeanne Haraway is an American philosopher, who contributed to the intersection of information technology and feminist theory, and is a scholar in contemporary ecofeminism. Her work criticizes anthropocentrism, emphasizes the self-organizing powers of nonhuman processes, and explores dissonant relations between those processes and cultural practices, rethinking sources of ethics.",
+    "description": "American philosopher (born 1944)"
+  },
+  "nick-bostrom": {
+    "extract": "Nick Bostrom is a philosopher known for his work on existential risk, the anthropic principle, human enhancement ethics, whole brain emulation, superintelligence risks, and the reversal test. He was the founding director of the later defunct Future of Humanity Institute at the University of Oxford and has become Principal Researcher at the Macrostrategy Research Initiative.",
+    "description": "Philosopher and writer (born 1973)"
+  },
+  "hans-jonas": {
+    "extract": "Hans Jonas was a German and American philosopher. From 1955 to 1976 he was the Alvin Johnson Professor of Philosophy at the New School for Social Research in New York City.",
+    "description": "German-American philosopher of environmentalism and Gnosticism (1903–1993)"
+  }
+}
